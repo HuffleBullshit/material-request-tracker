@@ -166,6 +166,8 @@ function ManageTab() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [needReturn, setNeedReturn] = useState<string>("all");
   const [date, setDate] = useState("");
+  const [flowType, setFlowType] = useState<string>("all");
+  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -175,6 +177,8 @@ function ManageTab() {
       .order("request_time", { ascending: false });
     if (needReturn === "yes") q = q.eq("need_return", true);
     if (needReturn === "no") q = q.eq("need_return", false);
+    if (flowType !== "all")
+      q = q.eq("flow_type", flowType as "lingyong" | "tuihuan" | "zhuanyi");
     if (date) {
       const start = new Date(date);
       const end = new Date(date);
@@ -198,16 +202,32 @@ function ManageTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 模拟审批状态：基于 id 哈希稳定派生 —— 大多已通过，少量审批中/已拒绝
+  const deriveApproval = (id: string): "已通过" | "审批中" | "已拒绝" => {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    const m = h % 10;
+    if (m === 0) return "已拒绝";
+    if (m <= 2) return "审批中";
+    return "已通过";
+  };
+
   const filtered = useMemo(() => {
     const k = keyword.trim().toLowerCase();
-    if (!k) return rows;
-    return rows.filter(
-      (r) =>
-        r.applicant.toLowerCase().includes(k) ||
-        r.product_code.toLowerCase().includes(k) ||
-        r.approval_no.toLowerCase().includes(k),
-    );
-  }, [rows, keyword]);
+    let list = rows;
+    if (k) {
+      list = list.filter(
+        (r) =>
+          r.product_code.toLowerCase().includes(k) ||
+          productInfo(r.product_code).name.toLowerCase().includes(k) ||
+          r.approval_no.toLowerCase().includes(k),
+      );
+    }
+    if (approvalStatus !== "all") {
+      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
+    }
+    return list;
+  }, [rows, keyword, approvalStatus]);
 
   const stats = useMemo(() => {
     const total = filtered.length;

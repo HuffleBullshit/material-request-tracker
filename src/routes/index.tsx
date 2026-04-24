@@ -57,6 +57,7 @@ const MODULES: ModuleCard[] = [
     description: "自定义查询条件，灵活获取各类业务数据",
     tags: ["多数据源", "自定义条件", "模板保存"],
     highlighted: true,
+    to: "/query",
   },
   {
     key: "hr",

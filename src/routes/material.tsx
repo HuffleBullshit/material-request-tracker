@@ -255,7 +255,6 @@ function MyRequests() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
-  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -289,16 +288,6 @@ function MyRequests() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 模拟审批状态
-  const deriveApproval = (id: string): "已通过" | "审批中" | "已拒绝" => {
-    let h = 0;
-    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-    const m = h % 10;
-    if (m === 0) return "已拒绝";
-    if (m <= 2) return "审批中";
-    return "已通过";
-  };
-
   const filtered = useMemo(() => {
     const k = keyword.trim().toLowerCase();
     let list = rows;
@@ -310,11 +299,8 @@ function MyRequests() {
           r.approval_no.toLowerCase().includes(k),
       );
     }
-    if (approvalStatus !== "all") {
-      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
-    }
     return list;
-  }, [rows, keyword, approvalStatus]);
+  }, [rows, keyword]);
 
   const stats = useMemo(() => {
     const total = filtered.length;
@@ -402,18 +388,6 @@ function MyRequests() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">审批状态</Label>
-            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
-              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="已通过">已通过</SelectItem>
-                <SelectItem value="审批中">审批中</SelectItem>
-                <SelectItem value="已拒绝">已拒绝</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
             <Label className="text-xs">是否需要归还</Label>
             <Select value={needReturn} onValueChange={setNeedReturn}>
               <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
@@ -441,7 +415,7 @@ function MyRequests() {
                 setDateStart("");
                 setDateEnd("");
                 setFlowType("all");
-                setApprovalStatus("all");
+                
                 setTimeout(load, 0);
               }}
             >
@@ -466,13 +440,6 @@ function MyRequests() {
         <div className="grid gap-3">
           {filtered.map((r) => {
             const info = productInfo(r.product_code);
-            const approval = deriveApproval(r.id);
-            const statusStyle =
-              approval === "审批中"
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : approval === "已拒绝"
-                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                  : "bg-emerald-50 text-emerald-700 border-emerald-200";
             return (
               <div
                 key={r.id}
@@ -483,9 +450,6 @@ function MyRequests() {
                     <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-mono font-semibold text-blue-700 border border-blue-100">
                       {r.approval_no}
                     </span>
-                    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs ${FLOW_BADGE[r.flow_type]}`}>
-                      {FLOW_LABELS[r.flow_type]}
-                    </span>
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3.5 w-3.5" />
                       {new Date(r.request_time).toLocaleString("zh-CN", {
@@ -494,8 +458,8 @@ function MyRequests() {
                       })}
                     </span>
                   </div>
-                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
-                    {approval}
+                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${FLOW_BADGE[r.flow_type]}`}>
+                    {FLOW_LABELS[r.flow_type]}
                   </span>
                 </div>
 
@@ -628,15 +592,23 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                     </div>
                   </div>
                 </div>
-                <Badge
-                  className={
-                    a.status === "使用中"
-                      ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0"
-                  }
-                >
-                  {a.status}
-                </Badge>
+                <div className="flex flex-col items-end gap-1.5">
+                  <Badge
+                    className={
+                      a.status === "使用中"
+                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0"
+                    }
+                  >
+                    {a.status}
+                  </Badge>
+                  {a.need_return && (
+                    <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 gap-1">
+                      <RotateCcw className="h-3 w-3" />
+                      需归还
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {a.status === "使用中" && a.need_return && (

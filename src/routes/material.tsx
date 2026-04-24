@@ -460,10 +460,6 @@ function ManageTab() {
                 {!loading &&
                   filtered.map((r) => {
                     const info = productInfo(r.product_code);
-                    const value =
-                      r.cost_price !== null
-                        ? Number(r.cost_price) * r.request_quantity
-                        : info.price * r.request_quantity;
                     const approval = deriveApproval(r.id);
                     return (
                       <TableRow key={r.id}>

@@ -388,14 +388,13 @@ function MyRequests() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">审批状态</Label>
-            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+            <Label className="text-xs">是否需要归还</Label>
+            <Select value={needReturn} onValueChange={setNeedReturn}>
               <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="已通过">已通过</SelectItem>
-                <SelectItem value="审批中">审批中</SelectItem>
-                <SelectItem value="已拒绝">已拒绝</SelectItem>
+                <SelectItem value="yes">是</SelectItem>
+                <SelectItem value="no">否</SelectItem>
               </SelectContent>
             </Select>
           </div>

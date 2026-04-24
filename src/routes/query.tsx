@@ -39,6 +39,7 @@ import {
   Play,
   Trash2,
   Loader2,
+  Download,
 } from "lucide-react";
 
 export const Route = createFileRoute("/query")({
@@ -355,6 +356,35 @@ function QueryPage() {
     toast.success(`已加载模板：${tpl.name}`);
   };
 
+  const exportResults = () => {
+    if (!results || results.length === 0) {
+      toast.warning("暂无可导出的数据");
+      return;
+    }
+    const headers = fields.map(
+      (k) => source.fields.find((x) => x.key === k)?.label ?? k,
+    );
+    const escape = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [
+      headers.map(escape).join(","),
+      ...results.map((row) => fields.map((k) => escape(row[k])).join(",")),
+    ].join("\n");
+    // 加 BOM 让 Excel 正确识别 UTF-8 中文
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${source.title}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("导出成功");
+  };
+
   const deleteTemplate = (id: string) => {
     const next = templates.filter((t) => t.id !== id);
     setTemplates(next);
@@ -555,10 +585,14 @@ function QueryPage() {
             {/* 结果 */}
             {results && (
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
                   <CardTitle className="text-base">
                     查询结果（{results.length} 条）
                   </CardTitle>
+                  <Button size="sm" variant="outline" onClick={exportResults}>
+                    <Download className="mr-1 h-4 w-4" />
+                    导出
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-md border overflow-x-auto">

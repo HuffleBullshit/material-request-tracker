@@ -5,7 +5,7 @@ import { RequestRecords } from "@/components/RequestRecords";
 import { Toaster } from "@/components/ui/sonner";
 import { Package } from "lucide-react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/material")({
   head: () => ({
     meta: [
       { title: "物料申请管理 — 后台模块" },

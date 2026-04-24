@@ -237,24 +237,29 @@ function saveTemplates(list: Template[]) {
 }
 
 // --------- 模拟查询 ---------
-const ASSET_STATUSES = ["使用中", "已处理", "需归还", "闲置"];
 function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[] {
   const cols = fields.length ? fields : source.fields.map((f) => f.key);
+  // 物料模块需要保证 need_return 与 asset_status 的一致性，所以先按行决定归还标识
   return Array.from({ length: 8 }, (_, i) => {
     const row: Record<string, unknown> = {};
+    const needReturn = i % 2 === 0; // 偶数行=是，奇数行=否
+    // 是 => 使用中 / 已处理；否 => 仅使用中
+    const status = needReturn ? (i % 4 === 0 ? "使用中" : "已处理") : "使用中";
     cols.forEach((k) => {
       const f = source.fields.find((x) => x.key === k);
       const label = f?.label ?? k;
-      if (k === "asset_status") row[k] = ASSET_STATUSES[i % ASSET_STATUSES.length];
+      if (k === "asset_status") row[k] = status;
       else if (k === "device_id") row[k] = `DEV-${1000 + i}`;
       else if (k === "product_category") row[k] = ["电子", "办公", "工具", "耗材"][i % 4];
-      else if (k === "need_return") row[k] = i % 2 === 0 ? "是" : "否";
+      else if (k === "need_return") row[k] = needReturn ? "是" : "否";
       else if (k.includes("date") || k.includes("time"))
         row[k] = `2025-0${(i % 9) + 1}-1${i % 9}`;
       else if (k.includes("price") || k.includes("amount") || k.includes("qty"))
         row[k] = Math.round(Math.random() * 10000) / 100;
       else row[k] = `${label}-${i + 1}`;
     });
+    // 即便用户没勾选 need_return 字段，也在内部记录方便操作列判断
+    if (!("need_return" in row)) row.need_return = needReturn ? "是" : "否";
     return row;
   });
 }

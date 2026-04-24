@@ -167,7 +167,7 @@ const DATA_SOURCES: DataSource[] = [
       { key: "asset_status", label: "资产状态" },
       { key: "applicant", label: "申请人" },
       { key: "approval_no", label: "审批编号" },
-      { key: "need_return", label: "是否归还" },
+      { key: "need_return", label: "是否需要归还" },
       { key: "request_time", label: "申请时间" },
     ],
     defaultFields: [

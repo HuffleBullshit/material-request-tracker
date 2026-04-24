@@ -449,6 +449,65 @@ function QueryPage() {
           </div>
         </div>
 
+        {/* 物料领用 — 统计 Banner */}
+        {sourceKey === "material" && (
+          <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              {
+                label: "领用总数",
+                value: 128,
+                icon: Package,
+                gradient: "from-blue-500 to-indigo-600",
+                ring: "ring-blue-200",
+              },
+              {
+                label: "使用中",
+                value: 76,
+                icon: Activity,
+                gradient: "from-emerald-500 to-teal-600",
+                ring: "ring-emerald-200",
+              },
+              {
+                label: "已处理",
+                value: 34,
+                icon: CheckCircle2,
+                gradient: "from-violet-500 to-purple-600",
+                ring: "ring-violet-200",
+              },
+              {
+                label: "需要归还",
+                value: 18,
+                icon: RotateCcw,
+                gradient: "from-rose-500 to-orange-500",
+                ring: "ring-rose-200",
+              },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.label}
+                  className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${s.gradient} p-4 text-white shadow-md ring-1 ${s.ring} transition-transform hover:-translate-y-0.5 hover:shadow-lg`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs/5 font-medium opacity-90">
+                        {s.label}
+                      </div>
+                      <div className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+                        {s.value}
+                      </div>
+                    </div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-white/10" />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
           {/* 左侧 */}
           <div className="space-y-4">

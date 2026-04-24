@@ -121,6 +121,8 @@ const MODULES: ModuleCard[] = [
     icon: Package,
     iconBg: "bg-purple-100",
     iconColor: "text-purple-600",
+    description: "物料领用、退还、转移流程管理",
+    tags: ["物料领用", "自助服务", "资产追踪"],
     to: "/material",
   },
   {
@@ -178,20 +180,22 @@ function ModuleTile({ module: m }: { module: ModuleCard }) {
 
   const content = (
     <div
-      className={`group relative h-full min-h-[160px] rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 ${
+      className={`group relative h-full min-h-[160px] rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 origin-center hover:scale-105 hover:shadow-xl hover:border-indigo-400 hover:ring-2 hover:ring-indigo-200 hover:z-10 ${
         m.highlighted ? "border-emerald-400 ring-2 ring-emerald-200" : "border-slate-200"
       }`}
     >
       <GripVertical className="absolute left-2 top-4 h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
 
       <div className="flex items-start gap-3 pl-4">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${m.iconBg}`}>
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${m.iconBg}`}>
           <Icon className={`h-5 w-5 ${m.iconColor}`} />
         </div>
         <div className="flex-1 min-w-0 pt-1">
-          <h3 className="text-sm font-semibold text-slate-900">{m.title}</h3>
+          <h3 className="text-sm font-semibold text-slate-900 transition-all duration-300 group-hover:text-base">{m.title}</h3>
           {m.description && (
-            <p className="mt-2 text-xs text-slate-500 leading-relaxed">{m.description}</p>
+            <p className="mt-2 text-xs text-slate-500 leading-relaxed transition-all duration-300 group-hover:text-sm group-hover:text-slate-700">
+              {m.description}
+            </p>
           )}
         </div>
       </div>
@@ -201,7 +205,7 @@ function ModuleTile({ module: m }: { module: ModuleCard }) {
           {m.tags.map((t) => (
             <span
               key={t}
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600 transition-all duration-300 group-hover:bg-indigo-50 group-hover:text-indigo-700 group-hover:text-sm"
             >
               {t}
             </span>

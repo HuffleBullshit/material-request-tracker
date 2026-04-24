@@ -210,7 +210,41 @@ const SOURCE_CONDITION_FIELDS: Record<string, Record<string, string[]>> = {
     product_category: ["eq"],
     warehouse: ["eq"],
   },
+  material: {
+    product_code: ["eq"],
+    product_name: ["like"],
+    product_category: ["eq"],
+    asset_status: ["eq"],
+    applicant: ["eq"],
+    need_return: ["eq"],
+    request_time: ["eq"],
+  },
 };
+
+// 物料操作记录 — 条件值的可选项
+const MATERIAL_VALUE_OPTIONS: Record<string, { value: string; label: string }[]> = {
+  product_category: [
+    { value: "电子", label: "电子" },
+    { value: "办公", label: "办公" },
+    { value: "工具", label: "工具" },
+    { value: "耗材", label: "耗材" },
+  ],
+  asset_status: [
+    { value: "使用中", label: "使用中" },
+    { value: "已处理", label: "已处理" },
+    { value: "需归还", label: "需归还" },
+  ],
+  need_return: [
+    { value: "是", label: "是" },
+    { value: "否", label: "否" },
+  ],
+};
+
+// 申请人 — 可选具体人或部门
+const APPLICANT_OPTIONS = [
+  { group: "部门", items: ["研发部", "市场部", "财务部", "运营部", "人事部"] },
+  { group: "人员", items: ["张三", "李四", "王五", "赵六", "钱七", "孙八"] },
+];
 
 interface Template {
   id: string;
@@ -674,13 +708,63 @@ function QueryPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Input
-                        value={c.value}
-                        onChange={(e) =>
-                          updateCondition(c.id, { value: e.target.value })
-                        }
-                        placeholder="输入值"
-                      />
+                      {sourceKey === "material" && c.field === "request_time" ? (
+                        <Input
+                          type="date"
+                          value={c.value}
+                          onChange={(e) =>
+                            updateCondition(c.id, { value: e.target.value })
+                          }
+                        />
+                      ) : sourceKey === "material" && c.field === "applicant" ? (
+                        <Select
+                          value={c.value}
+                          onValueChange={(v) => updateCondition(c.id, { value: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择部门或人员" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {APPLICANT_OPTIONS.map((g) => (
+                              <div key={g.group}>
+                                <div className="px-2 py-1 text-xs text-slate-400">
+                                  {g.group}
+                                </div>
+                                {g.items.map((name) => (
+                                  <SelectItem key={name} value={name}>
+                                    {name}
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : sourceKey === "material" &&
+                        MATERIAL_VALUE_OPTIONS[c.field] ? (
+                        <Select
+                          value={c.value}
+                          onValueChange={(v) => updateCondition(c.id, { value: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="请选择" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {MATERIAL_VALUE_OPTIONS[c.field].map((o) => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          value={c.value}
+                          onChange={(e) =>
+                            updateCondition(c.id, { value: e.target.value })
+                          }
+                          placeholder="输入值"
+                        />
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"

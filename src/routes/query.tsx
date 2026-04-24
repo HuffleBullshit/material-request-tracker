@@ -39,6 +39,7 @@ import {
   Play,
   Trash2,
   Loader2,
+  Download,
 } from "lucide-react";
 
 export const Route = createFileRoute("/query")({

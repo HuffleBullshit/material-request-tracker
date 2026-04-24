@@ -761,6 +761,21 @@ function QueryPage() {
                                   </TableCell>
                                 );
                               }
+                              if (k === "need_return") {
+                                const yes = String(v) === "是";
+                                const cls = yes
+                                  ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                                  : "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
+                                return (
+                                  <TableCell key={k}>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+                                    >
+                                      {String(v)}
+                                    </span>
+                                  </TableCell>
+                                );
+                              }
                               return (
                                 <TableCell key={k} className="text-sm">
                                   {String(v ?? "—")}

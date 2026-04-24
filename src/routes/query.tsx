@@ -589,8 +589,18 @@ function QueryPage() {
                       ))}
                     </div>
                   </ScrollArea>
-                  <div className="mt-3 text-xs text-slate-500">
-                    已选 {fields.length} / {source.fields.length}
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-slate-500">
+                      已选 {fields.length} / {source.fields.length}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={() => setSaveOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Save className="mr-1 h-4 w-4" />
+                      保存
+                    </Button>
                   </div>
                 </CardContent>
               )}

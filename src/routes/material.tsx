@@ -414,7 +414,8 @@ function ManageTab() {
                   size="sm"
                   onClick={() => {
                     setNeedReturn("all");
-                    setDate("");
+                    setDateStart("");
+                    setDateEnd("");
                     setFlowType("all");
                     setApprovalStatus("all");
                     setTimeout(load, 0);

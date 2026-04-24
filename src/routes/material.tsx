@@ -255,7 +255,6 @@ function MyRequests() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
-  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);

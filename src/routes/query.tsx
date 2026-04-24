@@ -217,7 +217,7 @@ const SOURCE_CONDITION_FIELDS: Record<string, Record<string, string[]>> = {
     asset_status: ["eq"],
     applicant: ["eq"],
     need_return: ["eq"],
-    request_time: ["eq"],
+    request_time: ["between"],
   },
 };
 

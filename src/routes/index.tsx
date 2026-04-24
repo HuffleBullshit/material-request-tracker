@@ -204,9 +204,7 @@ function ModuleTile({ module: m }: { module: ModuleCard }) {
 
   const content = (
     <div
-      className={`group relative h-full min-h-[160px] rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 origin-center hover:scale-105 hover:shadow-xl hover:border-indigo-400 hover:ring-2 hover:ring-indigo-200 hover:z-10 ${
-        m.highlighted ? "border-emerald-400 ring-2 ring-emerald-200" : "border-slate-200"
-      }`}
+      className={`group relative h-full min-h-[160px] rounded-xl border border-transparent bg-white p-4 shadow-sm transition-all duration-300 origin-center hover:scale-105 hover:shadow-xl hover:ring-2 hover:z-10 ${m.hoverBorder} ${m.hoverRing}`}
     >
       <GripVertical className="absolute left-2 top-4 h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
 

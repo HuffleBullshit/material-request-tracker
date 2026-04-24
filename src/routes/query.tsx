@@ -61,6 +61,7 @@ interface DataSource {
   title: string;
   desc: string;
   fields: FieldDef[];
+  defaultFields?: string[];
 }
 
 const DATA_SOURCES: DataSource[] = [

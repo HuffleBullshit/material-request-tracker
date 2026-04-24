@@ -769,31 +769,37 @@ function QueryPage() {
                             })}
                             {sourceKey === "material" && (
                               <TableCell className="text-right whitespace-nowrap">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="mr-1.5 h-7 px-2 text-xs"
-                                  onClick={() =>
-                                    toast.success(
-                                      `已发起转移：${row.product_code ?? row.device_id ?? "记录"}`,
-                                    )
-                                  }
-                                >
-                                  <ArrowRightLeft className="mr-1 h-3 w-3" />
-                                  转移
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="h-7 px-2 text-xs bg-rose-500 hover:bg-rose-600 text-white"
-                                  onClick={() =>
-                                    toast.success(
-                                      `已发起退还：${row.product_code ?? row.device_id ?? "记录"}`,
-                                    )
-                                  }
-                                >
-                                  <Undo2 className="mr-1 h-3 w-3" />
-                                  退还
-                                </Button>
+                                {String(row.need_return) === "是" ? (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="mr-1.5 h-7 px-2 text-xs"
+                                      onClick={() =>
+                                        toast.success(
+                                          `已发起转移：${row.product_code ?? row.device_id ?? "记录"}`,
+                                        )
+                                      }
+                                    >
+                                      <ArrowRightLeft className="mr-1 h-3 w-3" />
+                                      转移
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      className="h-7 px-2 text-xs bg-rose-500 hover:bg-rose-600 text-white"
+                                      onClick={() =>
+                                        toast.success(
+                                          `已发起退还：${row.product_code ?? row.device_id ?? "记录"}`,
+                                        )
+                                      }
+                                    >
+                                      <Undo2 className="mr-1 h-3 w-3" />
+                                      退还
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-slate-400">—</span>
+                                )}
                               </TableCell>
                             )}
                           </TableRow>

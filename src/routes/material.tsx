@@ -282,6 +282,7 @@ function MyRequests() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
+  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -326,31 +327,31 @@ function MyRequests() {
           r.approval_no.toLowerCase().includes(k),
       );
     }
+    if (approvalStatus !== "all") {
+      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
+    }
     return list;
-  }, [rows, keyword]);
+  }, [rows, keyword, approvalStatus]);
 
   const stats = useMemo(() => {
     const total = filtered.length;
-    let inUse = 0;
-    let processed = 0;
-    let needBack = 0;
-    filtered.forEach((r, i) => {
-      if (r.need_return) {
-        needBack += 1;
-        if (i % 3 === 0) processed += 1;
-        else inUse += 1;
-      } else {
-        inUse += 1;
-      }
+    let approved = 0;
+    let pending = 0;
+    let rejected = 0;
+    filtered.forEach((r) => {
+      const s = deriveApproval(r.id);
+      if (s === "approved") approved += 1;
+      else if (s === "pending") pending += 1;
+      else rejected += 1;
     });
-    return { total, inUse, processed, needBack };
+    return { total, approved, pending, rejected };
   }, [filtered]);
 
   const statCards = [
     { label: "申请总数", value: stats.total, icon: Package, from: "from-blue-500", to: "to-indigo-600", bar: "bg-blue-500" },
-    { label: "使用中", value: stats.inUse, icon: Activity, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
-    { label: "已处理", value: stats.processed, icon: CheckCircle2, from: "from-slate-500", to: "to-slate-700", bar: "bg-slate-500" },
-    { label: "需要归还", value: stats.needBack, icon: RotateCcw, from: "from-orange-500", to: "to-rose-500", bar: "bg-orange-500" },
+    { label: "已通过", value: stats.approved, icon: CheckCircle2, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
+    { label: "审批中", value: stats.pending, icon: Clock, from: "from-amber-500", to: "to-orange-500", bar: "bg-amber-500" },
+    { label: "已拒绝", value: stats.rejected, icon: XCircle, from: "from-rose-500", to: "to-pink-600", bar: "bg-rose-500" },
   ];
 
   return (

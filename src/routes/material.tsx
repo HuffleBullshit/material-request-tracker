@@ -245,101 +245,291 @@ function SelfServiceTab() {
   );
 }
 
-// ---------- 我的申请 ----------
+// ---------- 我的申请（融合个人概览：统计 + 搜索筛选 + 申请记录） ----------
 function MyRequests() {
   const [rows, setRows] = useState<RecordRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [needReturn, setNeedReturn] = useState<string>("all");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
+  const [flowType, setFlowType] = useState<string>("all");
+  const [approvalStatus, setApprovalStatus] = useState<string>("all");
+
+  const load = async () => {
+    setLoading(true);
+    let q = supabase
+      .from("material_requests")
+      .select("*")
+      .order("request_time", { ascending: false });
+    if (needReturn === "yes") q = q.eq("need_return", true);
+    if (needReturn === "no") q = q.eq("need_return", false);
+    if (flowType !== "all")
+      q = q.eq("flow_type", flowType as "lingyong" | "tuihuan" | "zhuanyi");
+    if (dateStart) {
+      q = q.gte("request_time", new Date(dateStart).toISOString());
+    }
+    if (dateEnd) {
+      const end = new Date(dateEnd);
+      end.setHours(23, 59, 59, 999);
+      q = q.lte("request_time", end.toISOString());
+    }
+    const { data, error } = await q;
+    if (error) {
+      console.error(error);
+      toast.error("加载失败");
+    }
+    setRows((data as RecordRow[]) ?? []);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("material_requests")
-        .select("*")
-        .order("request_time", { ascending: false })
-        .limit(20);
-      if (!cancelled) {
-        setRows((data as RecordRow[]) ?? []);
-        setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground text-sm">
-        <Loader2 className="inline h-4 w-4 animate-spin mr-2" />
-        加载中…
-      </div>
-    );
-  }
+  // 模拟审批状态
+  const deriveApproval = (id: string): "已通过" | "审批中" | "已拒绝" => {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    const m = h % 10;
+    if (m === 0) return "已拒绝";
+    if (m <= 2) return "审批中";
+    return "已通过";
+  };
 
-  if (rows.length === 0) {
-    return (
-      <div className="py-10 text-center text-muted-foreground text-sm">
-        暂无申请记录
-      </div>
-    );
-  }
+  const filtered = useMemo(() => {
+    const k = keyword.trim().toLowerCase();
+    let list = rows;
+    if (k) {
+      list = list.filter(
+        (r) =>
+          r.product_code.toLowerCase().includes(k) ||
+          productInfo(r.product_code).name.toLowerCase().includes(k) ||
+          r.approval_no.toLowerCase().includes(k),
+      );
+    }
+    if (approvalStatus !== "all") {
+      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
+    }
+    return list;
+  }, [rows, keyword, approvalStatus]);
+
+  const stats = useMemo(() => {
+    const total = filtered.length;
+    let inUse = 0;
+    let processed = 0;
+    let needBack = 0;
+    filtered.forEach((r, i) => {
+      if (r.need_return) {
+        needBack += 1;
+        if (i % 3 === 0) processed += 1;
+        else inUse += 1;
+      } else {
+        inUse += 1;
+      }
+    });
+    return { total, inUse, processed, needBack };
+  }, [filtered]);
+
+  const statCards = [
+    { label: "申请总数", value: stats.total, icon: Package, from: "from-blue-500", to: "to-indigo-600", bar: "bg-blue-500" },
+    { label: "使用中", value: stats.inUse, icon: Activity, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
+    { label: "已处理", value: stats.processed, icon: CheckCircle2, from: "from-slate-500", to: "to-slate-700", bar: "bg-slate-500" },
+    { label: "需要归还", value: stats.needBack, icon: RotateCcw, from: "from-orange-500", to: "to-rose-500", bar: "bg-orange-500" },
+  ];
 
   return (
-    <div className="space-y-3">
-      {rows.map((r, i) => {
-        const status =
-          i % 3 === 0 ? "审批中" : i % 5 === 0 ? "已驳回" : "已通过";
-        const statusClass =
-          status === "审批中"
-            ? "bg-blue-50 text-blue-700 border-blue-200"
-            : status === "已驳回"
-              ? "bg-rose-50 text-rose-700 border-rose-200"
-              : "bg-emerald-50 text-emerald-700 border-emerald-200";
-        return (
-          <div
-            key={r.id}
-            className="rounded-lg border bg-white p-4 hover:shadow-sm transition-shadow"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-semibold text-sm">
-                  {r.approval_no}
-                </span>
-                <span
-                  className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs ${FLOW_BADGE[r.flow_type]}`}
-                >
-                  {FLOW_LABELS[r.flow_type]}
-                </span>
+    <div className="space-y-5">
+      {/* 统计 Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {statCards.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div
+              key={s.label}
+              className="relative overflow-hidden rounded-xl bg-white border shadow-sm hover:shadow-md transition-shadow p-4"
+            >
+              <span className={`absolute left-0 top-0 h-full w-1 ${s.bar}`} aria-hidden />
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs text-slate-500">{s.label}</p>
+                  <p className="mt-1.5 text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
+                </div>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${s.from} ${s.to} text-white shadow-sm`}>
+                  <Icon className="h-4 w-4" />
+                </div>
               </div>
-              <span
-                className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs ${statusClass}`}
-              >
-                {status}
-              </span>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {new Date(r.request_time).toLocaleString("zh-CN")}
-            </div>
-            <div className="mt-3 text-sm">
-              <div className="text-muted-foreground mb-1">申请明细：</div>
-              <ul className="space-y-0.5 text-slate-700">
-                <li>
-                  · {r.product_code} {productInfo(r.product_code).name} ×{" "}
-                  {r.request_quantity}
-                </li>
-              </ul>
-            </div>
-            <div className="mt-3">
-              <button className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                <Eye className="h-3.5 w-3.5" />
-                查看审批
-              </button>
+          );
+        })}
+      </div>
+
+      {/* 搜索 + 筛选 */}
+      <div className="flex flex-col md:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="搜索产品编号、产品名称或审批编号…"
+            className="pl-9 bg-white"
+          />
+        </div>
+        <Button
+          variant={filterOpen ? "default" : "outline"}
+          onClick={() => setFilterOpen((v) => !v)}
+          className="gap-1.5"
+        >
+          <Filter className="h-4 w-4" />
+          筛选
+        </Button>
+      </div>
+
+      {filterOpen && (
+        <div className="grid gap-3 md:grid-cols-2 rounded-lg border bg-slate-50/60 p-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs">单据类型</Label>
+            <Select value={flowType} onValueChange={setFlowType}>
+              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="lingyong">申领单</SelectItem>
+                <SelectItem value="zhuanyi">转移单</SelectItem>
+                <SelectItem value="tuihuan">退还单</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">审批状态</Label>
+            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="已通过">已通过</SelectItem>
+                <SelectItem value="审批中">审批中</SelectItem>
+                <SelectItem value="已拒绝">已拒绝</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">是否需要归还</Label>
+            <Select value={needReturn} onValueChange={setNeedReturn}>
+              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="yes">是</SelectItem>
+                <SelectItem value="no">否</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">申请日期</Label>
+            <div className="flex items-center gap-2">
+              <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white" />
+              <span className="text-xs text-muted-foreground">至</span>
+              <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white" />
             </div>
           </div>
-        );
-      })}
+          <div className="md:col-span-2 flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setNeedReturn("all");
+                setDateStart("");
+                setDateEnd("");
+                setFlowType("all");
+                setApprovalStatus("all");
+                setTimeout(load, 0);
+              }}
+            >
+              重置
+            </Button>
+            <Button size="sm" onClick={load}>应用筛选</Button>
+          </div>
+        </div>
+      )}
+
+      {/* 申请记录列表（卡片式） */}
+      {loading ? (
+        <div className="py-12 text-center text-muted-foreground text-sm">
+          <Loader2 className="inline h-4 w-4 animate-spin mr-2" />
+          加载中…
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-12 text-center text-muted-foreground text-sm rounded-lg border border-dashed bg-slate-50/60">
+          暂无申请记录
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {filtered.map((r) => {
+            const info = productInfo(r.product_code);
+            const approval = deriveApproval(r.id);
+            const statusStyle =
+              approval === "审批中"
+                ? "bg-amber-50 text-amber-700 border-amber-200"
+                : approval === "已拒绝"
+                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200";
+            return (
+              <div
+                key={r.id}
+                className="group relative overflow-hidden rounded-xl border bg-white p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-mono font-semibold text-blue-700 border border-blue-100">
+                      {r.approval_no}
+                    </span>
+                    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs ${FLOW_BADGE[r.flow_type]}`}>
+                      {FLOW_LABELS[r.flow_type]}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {new Date(r.request_time).toLocaleString("zh-CN", {
+                        year: "numeric", month: "2-digit", day: "2-digit",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
+                    {approval}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">物料：</span>
+                    <span className="font-medium text-slate-900">{info.name}</span>
+                    <span className="ml-1 text-xs text-muted-foreground font-mono">({r.product_code})</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">数量：</span>
+                    <span className="tabular-nums font-medium">{r.request_quantity}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1">
+                    <span className="text-muted-foreground">需归还：</span>
+                    {r.need_return ? (
+                      <span className="text-orange-700 font-medium">是</span>
+                    ) : (
+                      <span className="text-slate-500">否</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-dashed flex justify-end">
+                  <button className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                    <Eye className="h-3.5 w-3.5" />
+                    查看审批
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

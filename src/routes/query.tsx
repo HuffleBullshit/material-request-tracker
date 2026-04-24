@@ -166,7 +166,6 @@ const DATA_SOURCES: DataSource[] = [
       { key: "device_id", label: "设备识别码" },
       { key: "asset_status", label: "资产状态" },
       { key: "applicant", label: "申请人" },
-      { key: "request_quantity", label: "申请数量" },
       { key: "approval_no", label: "审批编号" },
       { key: "need_return", label: "是否归还" },
       { key: "request_time", label: "申请时间" },
@@ -177,6 +176,10 @@ const DATA_SOURCES: DataSource[] = [
       "product_category",
       "device_id",
       "asset_status",
+      "applicant",
+      "approval_no",
+      "need_return",
+      "request_time",
     ],
   },
 ];

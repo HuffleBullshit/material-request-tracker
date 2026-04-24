@@ -291,6 +291,8 @@ function QueryPage() {
     setSourceKey(key);
     setConditions([]);
     setResults(null);
+    // 物料模块默认收起字段；其它默认展开
+    setFieldsCollapsed(key === "material");
   };
 
   const toggleField = (k: string) => {

@@ -356,6 +356,35 @@ function QueryPage() {
     toast.success(`已加载模板：${tpl.name}`);
   };
 
+  const exportResults = () => {
+    if (!results || results.length === 0) {
+      toast.warning("暂无可导出的数据");
+      return;
+    }
+    const headers = fields.map(
+      (k) => source.fields.find((x) => x.key === k)?.label ?? k,
+    );
+    const escape = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [
+      headers.map(escape).join(","),
+      ...results.map((row) => fields.map((k) => escape(row[k])).join(",")),
+    ].join("\n");
+    // 加 BOM 让 Excel 正确识别 UTF-8 中文
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${source.title}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("导出成功");
+  };
+
   const deleteTemplate = (id: string) => {
     const next = templates.filter((t) => t.id !== id);
     setTemplates(next);

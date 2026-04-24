@@ -234,6 +234,7 @@ function saveTemplates(list: Template[]) {
 }
 
 // --------- 模拟查询 ---------
+const ASSET_STATUSES = ["使用中", "已处理", "需归还", "闲置"];
 function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[] {
   const cols = fields.length ? fields : source.fields.map((f) => f.key);
   return Array.from({ length: 8 }, (_, i) => {
@@ -241,7 +242,11 @@ function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[
     cols.forEach((k) => {
       const f = source.fields.find((x) => x.key === k);
       const label = f?.label ?? k;
-      if (k.includes("date") || k.includes("time"))
+      if (k === "asset_status") row[k] = ASSET_STATUSES[i % ASSET_STATUSES.length];
+      else if (k === "device_id") row[k] = `DEV-${1000 + i}`;
+      else if (k === "product_category") row[k] = ["电子", "办公", "工具", "耗材"][i % 4];
+      else if (k === "need_return") row[k] = i % 2 === 0 ? "是" : "否";
+      else if (k.includes("date") || k.includes("time"))
         row[k] = `2025-0${(i % 9) + 1}-1${i % 9}`;
       else if (k.includes("price") || k.includes("amount") || k.includes("qty"))
         row[k] = Math.round(Math.random() * 10000) / 100;

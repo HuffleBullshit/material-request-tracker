@@ -592,21 +592,23 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                     </div>
                   </div>
                 </div>
-                <Badge
-                  className={
-                    a.status === "使用中"
-                      ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0"
-                  }
-                >
-                  {a.status}
-                </Badge>
-                {a.need_return && (
-                  <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 gap-1">
-                    <RotateCcw className="h-3 w-3" />
-                    需归还
+                <div className="flex flex-col items-end gap-1.5">
+                  <Badge
+                    className={
+                      a.status === "使用中"
+                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0"
+                    }
+                  >
+                    {a.status}
                   </Badge>
-                )}
+                  {a.need_return && (
+                    <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 gap-1">
+                      <RotateCcw className="h-3 w-3" />
+                      需归还
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {a.status === "使用中" && a.need_return && (

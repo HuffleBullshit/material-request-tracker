@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as QueryRouteImport } from './routes/query'
 import { Route as MaterialRouteImport } from './routes/material'
 import { Route as IndexRouteImport } from './routes/index'
 
+const QueryRoute = QueryRouteImport.update({
+  id: '/query',
+  path: '/query',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MaterialRoute = MaterialRouteImport.update({
   id: '/material',
   path: '/material',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/material': typeof MaterialRoute
+  '/query': typeof QueryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/material': typeof MaterialRoute
+  '/query': typeof QueryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/material': typeof MaterialRoute
+  '/query': typeof QueryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/material'
+  fullPaths: '/' | '/material' | '/query'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/material'
-  id: '__root__' | '/' | '/material'
+  to: '/' | '/material' | '/query'
+  id: '__root__' | '/' | '/material' | '/query'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MaterialRoute: typeof MaterialRoute
+  QueryRoute: typeof QueryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/query': {
+      id: '/query'
+      path: '/query'
+      fullPath: '/query'
+      preLoaderRoute: typeof QueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/material': {
       id: '/material'
       path: '/material'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MaterialRoute: MaterialRoute,
+  QueryRoute: QueryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

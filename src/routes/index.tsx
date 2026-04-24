@@ -48,6 +48,8 @@ const MODULES: ModuleCard[] = [
     icon: Gauge,
     iconBg: "bg-indigo-100",
     iconColor: "text-indigo-600",
+    hoverBorder: "hover:border-indigo-400",
+    hoverRing: "hover:ring-indigo-200",
   },
   {
     key: "query",
@@ -55,9 +57,10 @@ const MODULES: ModuleCard[] = [
     icon: Search,
     iconBg: "bg-emerald-100",
     iconColor: "text-emerald-600",
+    hoverBorder: "hover:border-emerald-400",
+    hoverRing: "hover:ring-emerald-200",
     description: "自定义查询条件，灵活获取各类业务数据",
     tags: ["多数据源", "自定义条件", "模板保存"],
-    highlighted: true,
     to: "/query",
   },
   {
@@ -66,6 +69,8 @@ const MODULES: ModuleCard[] = [
     icon: Users,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
+    hoverBorder: "hover:border-blue-400",
+    hoverRing: "hover:ring-blue-200",
   },
   {
     key: "sales",
@@ -73,6 +78,8 @@ const MODULES: ModuleCard[] = [
     icon: ShoppingCart,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
+    hoverBorder: "hover:border-green-400",
+    hoverRing: "hover:ring-green-200",
   },
   {
     key: "finance",
@@ -80,6 +87,8 @@ const MODULES: ModuleCard[] = [
     icon: DollarSign,
     iconBg: "bg-amber-100",
     iconColor: "text-amber-600",
+    hoverBorder: "hover:border-amber-400",
+    hoverRing: "hover:ring-amber-200",
   },
   {
     key: "cost",
@@ -87,6 +96,8 @@ const MODULES: ModuleCard[] = [
     icon: Calculator,
     iconBg: "bg-rose-100",
     iconColor: "text-rose-600",
+    hoverBorder: "hover:border-rose-400",
+    hoverRing: "hover:ring-rose-200",
   },
   {
     key: "supply",
@@ -94,6 +105,8 @@ const MODULES: ModuleCard[] = [
     icon: Truck,
     iconBg: "bg-violet-100",
     iconColor: "text-violet-600",
+    hoverBorder: "hover:border-violet-400",
+    hoverRing: "hover:ring-violet-200",
   },
   {
     key: "rd",
@@ -101,6 +114,8 @@ const MODULES: ModuleCard[] = [
     icon: Microscope,
     iconBg: "bg-cyan-100",
     iconColor: "text-cyan-600",
+    hoverBorder: "hover:border-cyan-400",
+    hoverRing: "hover:ring-cyan-200",
   },
   {
     key: "perf",
@@ -108,6 +123,8 @@ const MODULES: ModuleCard[] = [
     icon: TrendingUp,
     iconBg: "bg-pink-100",
     iconColor: "text-pink-600",
+    hoverBorder: "hover:border-pink-400",
+    hoverRing: "hover:ring-pink-200",
   },
   {
     key: "report",
@@ -115,6 +132,8 @@ const MODULES: ModuleCard[] = [
     icon: BarChart3,
     iconBg: "bg-teal-100",
     iconColor: "text-teal-600",
+    hoverBorder: "hover:border-teal-400",
+    hoverRing: "hover:ring-teal-200",
   },
   {
     key: "material",
@@ -122,6 +141,8 @@ const MODULES: ModuleCard[] = [
     icon: Package,
     iconBg: "bg-purple-100",
     iconColor: "text-purple-600",
+    hoverBorder: "hover:border-purple-400",
+    hoverRing: "hover:ring-purple-200",
     description: "物料领用、退还、转移流程管理",
     tags: ["物料领用", "自助服务", "资产追踪"],
     to: "/material",
@@ -132,6 +153,8 @@ const MODULES: ModuleCard[] = [
     icon: Settings,
     iconBg: "bg-slate-100",
     iconColor: "text-slate-600",
+    hoverBorder: "hover:border-slate-400",
+    hoverRing: "hover:ring-slate-300",
   },
 ];
 

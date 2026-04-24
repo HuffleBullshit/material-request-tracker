@@ -402,7 +402,7 @@ function MyRequests() {
       </div>
 
       {filterOpen && (
-        <div className="grid gap-3 md:grid-cols-2 rounded-lg border bg-slate-50/60 p-4">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 rounded-lg border bg-slate-50/60 p-4">
           <div className="space-y-1.5">
             <Label className="text-xs">单据类型</Label>
             <Select value={flowType} onValueChange={setFlowType}>
@@ -412,6 +412,18 @@ function MyRequests() {
                 <SelectItem value="lingyong">申领单</SelectItem>
                 <SelectItem value="zhuanyi">转移单</SelectItem>
                 <SelectItem value="tuihuan">退还单</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">审批状态</Label>
+            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="approved">已通过</SelectItem>
+                <SelectItem value="pending">审批中</SelectItem>
+                <SelectItem value="rejected">已拒绝</SelectItem>
               </SelectContent>
             </Select>
           </div>

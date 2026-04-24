@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RequestForm } from "@/components/RequestForm";
 import { RequestRecords } from "@/components/RequestRecords";
 import { Toaster } from "@/components/ui/sonner";
-import { Package } from "lucide-react";
+import { Package, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/material")({
   head: () => ({

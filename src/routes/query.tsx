@@ -232,7 +232,6 @@ const MATERIAL_VALUE_OPTIONS: Record<string, { value: string; label: string }[]>
   asset_status: [
     { value: "使用中", label: "使用中" },
     { value: "已处理", label: "已处理" },
-    { value: "需归还", label: "需归还" },
   ],
   need_return: [
     { value: "是", label: "是" },
@@ -701,11 +700,21 @@ function QueryPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {getAllowedOps(c.field).map((o) => (
-                            <SelectItem key={o.value} value={o.value}>
-                              {o.label}
-                            </SelectItem>
-                          ))}
+                          {getAllowedOps(c.field).map((o) => {
+                            const label =
+                              sourceKey === "material" &&
+                              o.value === "eq" &&
+                              ["asset_status", "applicant", "need_return", "request_time"].includes(
+                                c.field,
+                              )
+                                ? "为"
+                                : o.label;
+                            return (
+                              <SelectItem key={o.value} value={o.value}>
+                                {label}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       {sourceKey === "material" && c.field === "request_time" ? (

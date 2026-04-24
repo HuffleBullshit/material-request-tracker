@@ -399,17 +399,6 @@ function MyRequests() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">是否需要归还</Label>
-            <Select value={needReturn} onValueChange={setNeedReturn}>
-              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="yes">是</SelectItem>
-                <SelectItem value="no">否</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
             <Label className="text-xs">申请日期</Label>
             <div className="flex items-center gap-2">
               <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white" />

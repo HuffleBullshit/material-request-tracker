@@ -485,35 +485,53 @@ function QueryPage() {
             {/* 2. 选择字段 */}
             <Card>
               <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-base">2. 选择字段</CardTitle>
                 <button
-                  onClick={toggleAll}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  onClick={() => setFieldsCollapsed((v) => !v)}
+                  className="flex items-center gap-1.5 text-base font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                  aria-label={fieldsCollapsed ? "展开字段选择" : "收起字段选择"}
                 >
-                  {allChecked ? "取消" : "全选"}
+                  {fieldsCollapsed ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4" />
+                  )}
+                  2. 选择字段
+                  <span className="ml-1 text-xs font-normal text-slate-500">
+                    （{fields.length}/{source.fields.length}）
+                  </span>
                 </button>
+                {!fieldsCollapsed && (
+                  <button
+                    onClick={toggleAll}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    {allChecked ? "取消" : "全选"}
+                  </button>
+                )}
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[260px] pr-2">
-                  <div className="space-y-2.5">
-                    {source.fields.map((f) => (
-                      <label
-                        key={f.key}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={fields.includes(f.key)}
-                          onCheckedChange={() => toggleField(f.key)}
-                        />
-                        <span className="text-sm text-slate-700">{f.label}</span>
-                      </label>
-                    ))}
+              {!fieldsCollapsed && (
+                <CardContent>
+                  <ScrollArea className="h-[260px] pr-2">
+                    <div className="space-y-2.5">
+                      {source.fields.map((f) => (
+                        <label
+                          key={f.key}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={fields.includes(f.key)}
+                            onCheckedChange={() => toggleField(f.key)}
+                          />
+                          <span className="text-sm text-slate-700">{f.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  <div className="mt-3 text-xs text-slate-500">
+                    已选 {fields.length} / {source.fields.length}
                   </div>
-                </ScrollArea>
-                <div className="mt-3 text-xs text-slate-500">
-                  已选 {fields.length} / {source.fields.length}
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           </div>
 

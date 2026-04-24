@@ -167,7 +167,7 @@ const DATA_SOURCES: DataSource[] = [
       { key: "asset_status", label: "资产状态" },
       { key: "applicant", label: "申请人" },
       { key: "approval_no", label: "审批编号" },
-      { key: "need_return", label: "是否归还" },
+      { key: "need_return", label: "是否需要归还" },
       { key: "request_time", label: "申请时间" },
     ],
     defaultFields: [
@@ -279,8 +279,8 @@ function QueryPage() {
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
-  // 字段选择面板：物料模块默认收起，其它模块默认展开
-  const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(false);
+  // 字段选择面板：所有模块默认收起
+  const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(true);
 
   // 模板
   const [tplOpen, setTplOpen] = useState(false);
@@ -304,8 +304,8 @@ function QueryPage() {
     setSourceKey(key);
     setConditions([]);
     setResults(null);
-    // 物料模块默认收起字段；其它默认展开
-    setFieldsCollapsed(key === "material");
+    // 切换数据源时统一收起字段面板
+    setFieldsCollapsed(true);
   };
 
   const toggleField = (k: string) => {
@@ -757,6 +757,21 @@ function QueryPage() {
                                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
                                     >
                                       {status}
+                                    </span>
+                                  </TableCell>
+                                );
+                              }
+                              if (k === "need_return") {
+                                const yes = String(v) === "是";
+                                const cls = yes
+                                  ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                                  : "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
+                                return (
+                                  <TableCell key={k}>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+                                    >
+                                      {String(v)}
                                     </span>
                                   </TableCell>
                                 );

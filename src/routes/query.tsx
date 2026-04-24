@@ -281,13 +281,25 @@ function QueryPage() {
     }));
   };
 
+  const conditionFieldMap = SOURCE_CONDITION_FIELDS[sourceKey];
+  const allowedConditionFields = conditionFieldMap
+    ? source.fields.filter((f) => f.key in conditionFieldMap)
+    : source.fields;
+  const getAllowedOps = (fieldKey: string) => {
+    if (!conditionFieldMap) return OPERATORS;
+    const allowed = conditionFieldMap[fieldKey] ?? [];
+    return OPERATORS.filter((o) => allowed.includes(o.value));
+  };
+
   const addCondition = () => {
+    const firstField = allowedConditionFields[0]?.key ?? "";
+    const firstOp = getAllowedOps(firstField)[0]?.value ?? "eq";
     setConditions((prev) => [
       ...prev,
       {
         id: crypto.randomUUID(),
-        field: source.fields[0]?.key ?? "",
-        op: "eq",
+        field: firstField,
+        op: firstOp,
         value: "",
       },
     ]);

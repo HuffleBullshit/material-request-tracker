@@ -585,10 +585,14 @@ function QueryPage() {
             {/* 结果 */}
             {results && (
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
                   <CardTitle className="text-base">
                     查询结果（{results.length} 条）
                   </CardTitle>
+                  <Button size="sm" variant="outline" onClick={exportResults}>
+                    <Download className="mr-1 h-4 w-4" />
+                    导出
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-md border overflow-x-auto">

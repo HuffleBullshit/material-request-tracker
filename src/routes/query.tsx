@@ -178,6 +178,17 @@ interface Condition {
   value: string;
 }
 
+// 各数据源的可用条件字段限制（key 为字段，value 为允许的操作符）
+// 未在此映射中的数据源使用全部字段 + 全部操作符
+const SOURCE_CONDITION_FIELDS: Record<string, Record<string, string[]>> = {
+  stock: {
+    product_name: ["like"],
+    product_code: ["eq"],
+    product_category: ["eq"],
+    warehouse: ["eq"],
+  },
+};
+
 interface Template {
   id: string;
   name: string;

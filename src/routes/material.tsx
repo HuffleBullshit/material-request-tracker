@@ -498,9 +498,21 @@ function MyRequests() {
                       })}
                     </span>
                   </div>
-                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${FLOW_BADGE[r.flow_type]}`}>
-                    {FLOW_LABELS[r.flow_type]}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const s = deriveApproval(r.id);
+                      const Icon = APPROVAL_ICON[s];
+                      return (
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium ${APPROVAL_BADGE[s]}`}>
+                          <Icon className="h-3.5 w-3.5" />
+                          {APPROVAL_LABELS[s]}
+                        </span>
+                      );
+                    })()}
+                    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${FLOW_BADGE[r.flow_type]}`}>
+                      {FLOW_LABELS[r.flow_type]}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm">

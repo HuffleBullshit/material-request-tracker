@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -166,7 +166,6 @@ const DATA_SOURCES: DataSource[] = [
       { key: "device_id", label: "设备识别码" },
       { key: "asset_status", label: "资产状态" },
       { key: "applicant", label: "申请人" },
-      { key: "request_quantity", label: "申请数量" },
       { key: "approval_no", label: "审批编号" },
       { key: "need_return", label: "是否归还" },
       { key: "request_time", label: "申请时间" },
@@ -177,6 +176,10 @@ const DATA_SOURCES: DataSource[] = [
       "product_category",
       "device_id",
       "asset_status",
+      "applicant",
+      "approval_no",
+      "need_return",
+      "request_time",
     ],
   },
 ];
@@ -278,7 +281,12 @@ function QueryPage() {
   const [tplOpen, setTplOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [tplName, setTplName] = useState("");
-  const [templates, setTemplates] = useState<Template[]>(() => loadTemplates());
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setTemplates(loadTemplates());
+    setMounted(true);
+  }, []);
 
   const source = useMemo(
     () => DATA_SOURCES.find((s) => s.key === sourceKey)!,
@@ -436,7 +444,7 @@ function QueryPage() {
             <Button variant="outline" onClick={() => setTplOpen(true)}>
               <FolderOpen className="mr-2 h-4 w-4" />
               我的模板
-              {templates.length > 0 && (
+              {mounted && templates.length > 0 && (
                 <span className="ml-1.5 rounded-md bg-slate-100 px-1.5 text-xs text-slate-600">
                   {templates.length}
                 </span>
@@ -586,8 +594,18 @@ function QueryPage() {
                       ))}
                     </div>
                   </ScrollArea>
-                  <div className="mt-3 text-xs text-slate-500">
-                    已选 {fields.length} / {source.fields.length}
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-slate-500">
+                      已选 {fields.length} / {source.fields.length}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={() => setSaveOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Save className="mr-1 h-4 w-4" />
+                      保存
+                    </Button>
                   </div>
                 </CardContent>
               )}

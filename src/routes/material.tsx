@@ -124,31 +124,7 @@ function MaterialPage() {
       </header>
 
       <main className="mx-auto max-w-[1400px] px-6 py-6">
-        <Tabs defaultValue="manage" className="space-y-5">
-          <TabsList className="bg-transparent border-b w-full justify-start rounded-none h-auto p-0 gap-6">
-            <TabsTrigger
-              value="manage"
-              className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-1 pb-3 pt-2 gap-1.5 text-sm"
-            >
-              <Box className="h-4 w-4" />
-              个人概览
-            </TabsTrigger>
-            <TabsTrigger
-              value="self"
-              className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-1 pb-3 pt-2 gap-1.5 text-sm"
-            >
-              <Users className="h-4 w-4" />
-              自助服务
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="manage" className="space-y-5 mt-0">
-            <ManageTab />
-          </TabsContent>
-          <TabsContent value="self" className="space-y-5 mt-0">
-            <SelfServiceTab />
-          </TabsContent>
-        </Tabs>
+        <SelfServiceTab />
       </main>
 
       <Toaster richColors position="top-right" />

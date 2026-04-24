@@ -34,10 +34,11 @@ interface ModuleCard {
   icon: LucideIcon;
   iconBg: string;
   iconColor: string;
+  hoverBorder: string;
+  hoverRing: string;
   description?: string;
   tags?: string[];
   to?: string;
-  highlighted?: boolean;
 }
 
 const MODULES: ModuleCard[] = [

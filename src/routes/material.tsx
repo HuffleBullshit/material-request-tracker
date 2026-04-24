@@ -35,7 +35,6 @@ import { toast } from "sonner";
 import {
   Home,
   Package,
-  Activity,
   CheckCircle2,
   RotateCcw,
   Box,
@@ -47,7 +46,35 @@ import {
   Eye,
   ArrowRightLeft,
   Undo2,
+  Clock,
+  XCircle,
 } from "lucide-react";
+
+// 审批状态（根据 id 稳定派生，便于演示）
+type ApprovalStatus = "approved" | "pending" | "rejected";
+const APPROVAL_LABELS: Record<ApprovalStatus, string> = {
+  approved: "已通过",
+  pending: "审批中",
+  rejected: "已拒绝",
+};
+const APPROVAL_BADGE: Record<ApprovalStatus, string> = {
+  approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  rejected: "bg-rose-50 text-rose-700 border-rose-200",
+};
+const APPROVAL_ICON: Record<ApprovalStatus, typeof CheckCircle2> = {
+  approved: CheckCircle2,
+  pending: Clock,
+  rejected: XCircle,
+};
+function deriveApproval(id: string): ApprovalStatus {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  const m = h % 10;
+  if (m < 6) return "approved"; // 60%
+  if (m < 9) return "pending"; // 30%
+  return "rejected"; // 10%
+}
 
 export const Route = createFileRoute("/material")({
   head: () => ({
@@ -255,6 +282,7 @@ function MyRequests() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
+  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -299,31 +327,31 @@ function MyRequests() {
           r.approval_no.toLowerCase().includes(k),
       );
     }
+    if (approvalStatus !== "all") {
+      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
+    }
     return list;
-  }, [rows, keyword]);
+  }, [rows, keyword, approvalStatus]);
 
   const stats = useMemo(() => {
     const total = filtered.length;
-    let inUse = 0;
-    let processed = 0;
-    let needBack = 0;
-    filtered.forEach((r, i) => {
-      if (r.need_return) {
-        needBack += 1;
-        if (i % 3 === 0) processed += 1;
-        else inUse += 1;
-      } else {
-        inUse += 1;
-      }
+    let approved = 0;
+    let pending = 0;
+    let rejected = 0;
+    filtered.forEach((r) => {
+      const s = deriveApproval(r.id);
+      if (s === "approved") approved += 1;
+      else if (s === "pending") pending += 1;
+      else rejected += 1;
     });
-    return { total, inUse, processed, needBack };
+    return { total, approved, pending, rejected };
   }, [filtered]);
 
   const statCards = [
     { label: "申请总数", value: stats.total, icon: Package, from: "from-blue-500", to: "to-indigo-600", bar: "bg-blue-500" },
-    { label: "使用中", value: stats.inUse, icon: Activity, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
-    { label: "已处理", value: stats.processed, icon: CheckCircle2, from: "from-slate-500", to: "to-slate-700", bar: "bg-slate-500" },
-    { label: "需要归还", value: stats.needBack, icon: RotateCcw, from: "from-orange-500", to: "to-rose-500", bar: "bg-orange-500" },
+    { label: "已通过", value: stats.approved, icon: CheckCircle2, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
+    { label: "审批中", value: stats.pending, icon: Clock, from: "from-amber-500", to: "to-orange-500", bar: "bg-amber-500" },
+    { label: "已拒绝", value: stats.rejected, icon: XCircle, from: "from-rose-500", to: "to-pink-600", bar: "bg-rose-500" },
   ];
 
   return (
@@ -374,7 +402,7 @@ function MyRequests() {
       </div>
 
       {filterOpen && (
-        <div className="grid gap-3 md:grid-cols-2 rounded-lg border bg-slate-50/60 p-4">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 rounded-lg border bg-slate-50/60 p-4">
           <div className="space-y-1.5">
             <Label className="text-xs">单据类型</Label>
             <Select value={flowType} onValueChange={setFlowType}>
@@ -384,6 +412,18 @@ function MyRequests() {
                 <SelectItem value="lingyong">申领单</SelectItem>
                 <SelectItem value="zhuanyi">转移单</SelectItem>
                 <SelectItem value="tuihuan">退还单</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">审批状态</Label>
+            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="approved">已通过</SelectItem>
+                <SelectItem value="pending">审批中</SelectItem>
+                <SelectItem value="rejected">已拒绝</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -415,7 +455,7 @@ function MyRequests() {
                 setDateStart("");
                 setDateEnd("");
                 setFlowType("all");
-                
+                setApprovalStatus("all");
                 setTimeout(load, 0);
               }}
             >
@@ -458,9 +498,21 @@ function MyRequests() {
                       })}
                     </span>
                   </div>
-                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${FLOW_BADGE[r.flow_type]}`}>
-                    {FLOW_LABELS[r.flow_type]}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const s = deriveApproval(r.id);
+                      const Icon = APPROVAL_ICON[s];
+                      return (
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium ${APPROVAL_BADGE[s]}`}>
+                          <Icon className="h-3.5 w-3.5" />
+                          {APPROVAL_LABELS[s]}
+                        </span>
+                      );
+                    })()}
+                    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${FLOW_BADGE[r.flow_type]}`}>
+                      {FLOW_LABELS[r.flow_type]}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-sm">

@@ -718,13 +718,32 @@ function QueryPage() {
                         </SelectContent>
                       </Select>
                       {sourceKey === "material" && c.field === "request_time" ? (
-                        <Input
-                          type="date"
-                          value={c.value}
-                          onChange={(e) =>
-                            updateCondition(c.id, { value: e.target.value })
-                          }
-                        />
+                        (() => {
+                          const [start, end] = (c.value || "~").split("~");
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              <Input
+                                type="date"
+                                value={start || ""}
+                                onChange={(e) =>
+                                  updateCondition(c.id, {
+                                    value: `${e.target.value}~${end || ""}`,
+                                  })
+                                }
+                              />
+                              <span className="text-xs text-slate-400">至</span>
+                              <Input
+                                type="date"
+                                value={end || ""}
+                                onChange={(e) =>
+                                  updateCondition(c.id, {
+                                    value: `${start || ""}~${e.target.value}`,
+                                  })
+                                }
+                              />
+                            </div>
+                          );
+                        })()
                       ) : sourceKey === "material" && c.field === "applicant" ? (
                         <Select
                           value={c.value}

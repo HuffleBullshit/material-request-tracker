@@ -281,7 +281,11 @@ function QueryPage() {
   const [tplOpen, setTplOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [tplName, setTplName] = useState("");
-  const [templates, setTemplates] = useState<Template[]>(() => loadTemplates());
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [mounted, setMounted] = useState(false);
+  if (typeof window !== "undefined" && !mounted) {
+    // hydration-safe init: load templates only on client after mount
+  }
 
   const source = useMemo(
     () => DATA_SOURCES.find((s) => s.key === sourceKey)!,

@@ -165,7 +165,8 @@ function ManageTab() {
   const [keyword, setKeyword] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [needReturn, setNeedReturn] = useState<string>("all");
-  const [date, setDate] = useState("");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
   const [approvalStatus, setApprovalStatus] = useState<string>("all");
 

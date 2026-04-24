@@ -52,7 +52,7 @@ import {
 export const Route = createFileRoute("/material")({
   head: () => ({
     meta: [
-      { title: "物料管理系统 — 后台模块" },
+      { title: "物料管理 — 后台模块" },
       { name: "description", content: "物料领用、退还、转移流程申请与自助服务" },
     ],
   }),
@@ -118,7 +118,7 @@ function MaterialPage() {
           <div className="h-6 w-px bg-border" />
           <div className="flex items-center gap-2">
             <Box className="h-5 w-5 text-primary" />
-            <h1 className="text-base font-semibold">物料管理系统</h1>
+            <h1 className="text-base font-semibold">物料管理</h1>
           </div>
         </div>
       </header>
@@ -131,7 +131,7 @@ function MaterialPage() {
               className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-1 pb-3 pt-2 gap-1.5 text-sm"
             >
               <Box className="h-4 w-4" />
-              物料管理
+              个人概览
             </TabsTrigger>
             <TabsTrigger
               value="self"

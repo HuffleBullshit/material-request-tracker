@@ -40,6 +40,14 @@ import {
   Trash2,
   Loader2,
   Download,
+  ChevronDown,
+  ChevronUp,
+  Package,
+  Activity,
+  CheckCircle2,
+  RotateCcw,
+  ArrowRightLeft,
+  Undo2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/query")({
@@ -152,12 +160,23 @@ const DATA_SOURCES: DataSource[] = [
     title: "物料领用记录",
     desc: "查询物料领用数据",
     fields: [
-      { key: "applicant", label: "申请人" },
       { key: "product_code", label: "产品编号" },
+      { key: "product_name", label: "产品名称" },
+      { key: "product_category", label: "产品分类" },
+      { key: "device_id", label: "设备识别码" },
+      { key: "asset_status", label: "资产状态" },
+      { key: "applicant", label: "申请人" },
       { key: "request_quantity", label: "申请数量" },
       { key: "approval_no", label: "审批编号" },
       { key: "need_return", label: "是否归还" },
       { key: "request_time", label: "申请时间" },
+    ],
+    defaultFields: [
+      "product_code",
+      "product_name",
+      "product_category",
+      "device_id",
+      "asset_status",
     ],
   },
 ];
@@ -215,6 +234,7 @@ function saveTemplates(list: Template[]) {
 }
 
 // --------- 模拟查询 ---------
+const ASSET_STATUSES = ["使用中", "已处理", "需归还", "闲置"];
 function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[] {
   const cols = fields.length ? fields : source.fields.map((f) => f.key);
   return Array.from({ length: 8 }, (_, i) => {
@@ -222,7 +242,11 @@ function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[
     cols.forEach((k) => {
       const f = source.fields.find((x) => x.key === k);
       const label = f?.label ?? k;
-      if (k.includes("date") || k.includes("time"))
+      if (k === "asset_status") row[k] = ASSET_STATUSES[i % ASSET_STATUSES.length];
+      else if (k === "device_id") row[k] = `DEV-${1000 + i}`;
+      else if (k === "product_category") row[k] = ["电子", "办公", "工具", "耗材"][i % 4];
+      else if (k === "need_return") row[k] = i % 2 === 0 ? "是" : "否";
+      else if (k.includes("date") || k.includes("time"))
         row[k] = `2025-0${(i % 9) + 1}-1${i % 9}`;
       else if (k.includes("price") || k.includes("amount") || k.includes("qty"))
         row[k] = Math.round(Math.random() * 10000) / 100;
@@ -247,6 +271,8 @@ function QueryPage() {
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
+  // 字段选择面板：物料模块默认收起，其它模块默认展开
+  const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(false);
 
   // 模板
   const [tplOpen, setTplOpen] = useState(false);
@@ -265,6 +291,8 @@ function QueryPage() {
     setSourceKey(key);
     setConditions([]);
     setResults(null);
+    // 物料模块默认收起字段；其它默认展开
+    setFieldsCollapsed(key === "material");
   };
 
   const toggleField = (k: string) => {
@@ -421,6 +449,65 @@ function QueryPage() {
           </div>
         </div>
 
+        {/* 物料领用 — 统计 Banner */}
+        {sourceKey === "material" && (
+          <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              {
+                label: "领用总数",
+                value: 128,
+                icon: Package,
+                gradient: "from-blue-500 to-indigo-600",
+                ring: "ring-blue-200",
+              },
+              {
+                label: "使用中",
+                value: 76,
+                icon: Activity,
+                gradient: "from-emerald-500 to-teal-600",
+                ring: "ring-emerald-200",
+              },
+              {
+                label: "已处理",
+                value: 34,
+                icon: CheckCircle2,
+                gradient: "from-violet-500 to-purple-600",
+                ring: "ring-violet-200",
+              },
+              {
+                label: "需要归还",
+                value: 18,
+                icon: RotateCcw,
+                gradient: "from-rose-500 to-orange-500",
+                ring: "ring-rose-200",
+              },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.label}
+                  className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${s.gradient} p-4 text-white shadow-md ring-1 ${s.ring} transition-transform hover:-translate-y-0.5 hover:shadow-lg`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs/5 font-medium opacity-90">
+                        {s.label}
+                      </div>
+                      <div className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+                        {s.value}
+                      </div>
+                    </div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-white/10" />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
           {/* 左侧 */}
           <div className="space-y-4">
@@ -457,35 +544,53 @@ function QueryPage() {
             {/* 2. 选择字段 */}
             <Card>
               <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-base">2. 选择字段</CardTitle>
                 <button
-                  onClick={toggleAll}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  onClick={() => setFieldsCollapsed((v) => !v)}
+                  className="flex items-center gap-1.5 text-base font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                  aria-label={fieldsCollapsed ? "展开字段选择" : "收起字段选择"}
                 >
-                  {allChecked ? "取消" : "全选"}
+                  {fieldsCollapsed ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4" />
+                  )}
+                  2. 选择字段
+                  <span className="ml-1 text-xs font-normal text-slate-500">
+                    （{fields.length}/{source.fields.length}）
+                  </span>
                 </button>
+                {!fieldsCollapsed && (
+                  <button
+                    onClick={toggleAll}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    {allChecked ? "取消" : "全选"}
+                  </button>
+                )}
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[260px] pr-2">
-                  <div className="space-y-2.5">
-                    {source.fields.map((f) => (
-                      <label
-                        key={f.key}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={fields.includes(f.key)}
-                          onCheckedChange={() => toggleField(f.key)}
-                        />
-                        <span className="text-sm text-slate-700">{f.label}</span>
-                      </label>
-                    ))}
+              {!fieldsCollapsed && (
+                <CardContent>
+                  <ScrollArea className="h-[260px] pr-2">
+                    <div className="space-y-2.5">
+                      {source.fields.map((f) => (
+                        <label
+                          key={f.key}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={fields.includes(f.key)}
+                            onCheckedChange={() => toggleField(f.key)}
+                          />
+                          <span className="text-sm text-slate-700">{f.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  <div className="mt-3 text-xs text-slate-500">
+                    已选 {fields.length} / {source.fields.length}
                   </div>
-                </ScrollArea>
-                <div className="mt-3 text-xs text-slate-500">
-                  已选 {fields.length} / {source.fields.length}
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           </div>
 
@@ -603,16 +708,71 @@ function QueryPage() {
                             const f = source.fields.find((x) => x.key === k);
                             return <TableHead key={k}>{f?.label ?? k}</TableHead>;
                           })}
+                          {sourceKey === "material" && (
+                            <TableHead className="text-right">操作</TableHead>
+                          )}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {results.map((row, i) => (
                           <TableRow key={i}>
-                            {fields.map((k) => (
-                              <TableCell key={k} className="text-sm">
-                                {String(row[k] ?? "—")}
+                            {fields.map((k) => {
+                              const v = row[k];
+                              if (k === "asset_status") {
+                                const status = String(v);
+                                const cls =
+                                  status === "使用中"
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : status === "已处理"
+                                      ? "bg-violet-100 text-violet-700"
+                                      : status === "需归还"
+                                        ? "bg-rose-100 text-rose-700"
+                                        : "bg-slate-100 text-slate-700";
+                                return (
+                                  <TableCell key={k}>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+                                    >
+                                      {status}
+                                    </span>
+                                  </TableCell>
+                                );
+                              }
+                              return (
+                                <TableCell key={k} className="text-sm">
+                                  {String(v ?? "—")}
+                                </TableCell>
+                              );
+                            })}
+                            {sourceKey === "material" && (
+                              <TableCell className="text-right whitespace-nowrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="mr-1.5 h-7 px-2 text-xs"
+                                  onClick={() =>
+                                    toast.success(
+                                      `已发起转移：${row.product_code ?? row.device_id ?? "记录"}`,
+                                    )
+                                  }
+                                >
+                                  <ArrowRightLeft className="mr-1 h-3 w-3" />
+                                  转移
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="h-7 px-2 text-xs bg-rose-500 hover:bg-rose-600 text-white"
+                                  onClick={() =>
+                                    toast.success(
+                                      `已发起退还：${row.product_code ?? row.device_id ?? "记录"}`,
+                                    )
+                                  }
+                                >
+                                  <Undo2 className="mr-1 h-3 w-3" />
+                                  退还
+                                </Button>
                               </TableCell>
-                            ))}
+                            )}
                           </TableRow>
                         ))}
                       </TableBody>

@@ -180,14 +180,14 @@ function ManageTab() {
     if (needReturn === "no") q = q.eq("need_return", false);
     if (flowType !== "all")
       q = q.eq("flow_type", flowType as "lingyong" | "tuihuan" | "zhuanyi");
-    if (date) {
-      const start = new Date(date);
-      const end = new Date(date);
+    if (dateStart) {
+      const start = new Date(dateStart);
+      q = q.gte("request_time", start.toISOString());
+    }
+    if (dateEnd) {
+      const end = new Date(dateEnd);
       end.setHours(23, 59, 59, 999);
-      q = q.gte("request_time", start.toISOString()).lte(
-        "request_time",
-        end.toISOString(),
-      );
+      q = q.lte("request_time", end.toISOString());
     }
     const { data, error } = await q;
     if (error) {

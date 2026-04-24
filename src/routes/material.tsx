@@ -455,7 +455,7 @@ function MyRequests() {
                 setDateStart("");
                 setDateEnd("");
                 setFlowType("all");
-                
+                setApprovalStatus("all");
                 setTimeout(load, 0);
               }}
             >

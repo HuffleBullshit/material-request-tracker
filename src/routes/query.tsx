@@ -444,7 +444,7 @@ function QueryPage() {
             <Button variant="outline" onClick={() => setTplOpen(true)}>
               <FolderOpen className="mr-2 h-4 w-4" />
               我的模板
-              {templates.length > 0 && (
+              {mounted && templates.length > 0 && (
                 <span className="ml-1.5 rounded-md bg-slate-100 px-1.5 text-xs text-slate-600">
                   {templates.length}
                 </span>

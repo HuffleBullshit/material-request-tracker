@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      material_requests: {
+        Row: {
+          applicant: string
+          approval_no: string
+          config_price: number | null
+          cost_price: number | null
+          created_at: string
+          flow_type: Database["public"]["Enums"]["request_flow_type"]
+          id: string
+          need_return: boolean
+          product_code: string
+          request_quantity: number
+          request_time: string
+        }
+        Insert: {
+          applicant: string
+          approval_no: string
+          config_price?: number | null
+          cost_price?: number | null
+          created_at?: string
+          flow_type: Database["public"]["Enums"]["request_flow_type"]
+          id?: string
+          need_return?: boolean
+          product_code: string
+          request_quantity: number
+          request_time?: string
+        }
+        Update: {
+          applicant?: string
+          approval_no?: string
+          config_price?: number | null
+          cost_price?: number | null
+          created_at?: string
+          flow_type?: Database["public"]["Enums"]["request_flow_type"]
+          id?: string
+          need_return?: boolean
+          product_code?: string
+          request_quantity?: number
+          request_time?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +64,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      request_flow_type: "lingyong" | "tuihuan" | "zhuanyi"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +191,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      request_flow_type: ["lingyong", "tuihuan", "zhuanyi"],
+    },
   },
 } as const

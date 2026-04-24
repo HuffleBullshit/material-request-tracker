@@ -157,8 +157,8 @@ const DATA_SOURCES: DataSource[] = [
   },
   {
     key: "material",
-    title: "物料领用记录",
-    desc: "查询物料领用数据",
+    title: "物料操作记录",
+    desc: "查询物料的领用、退还、转移记录",
     fields: [
       { key: "product_code", label: "产品编号" },
       { key: "product_name", label: "产品名称" },

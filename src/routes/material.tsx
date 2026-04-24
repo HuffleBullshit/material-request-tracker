@@ -374,27 +374,24 @@ function ManageTab() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50/80">
-                  <TableHead>申请人</TableHead>
-                  <TableHead>产品信息</TableHead>
-                  <TableHead className="text-right">申请数量</TableHead>
                   <TableHead>审批编号</TableHead>
-                  <TableHead>是否归还</TableHead>
-                  <TableHead className="text-right">资产价值</TableHead>
+                  <TableHead>单据类型</TableHead>
                   <TableHead>申请时间</TableHead>
-                  <TableHead>状态</TableHead>
+                  <TableHead>申请明细</TableHead>
+                  <TableHead>审批状态</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading && (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10">
+                    <TableCell colSpan={5} className="text-center py-10">
                       <Loader2 className="inline h-4 w-4 animate-spin text-muted-foreground" />
                     </TableCell>
                   </TableRow>
                 )}
                 {!loading && filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-10">
                       暂无数据
                     </TableCell>
                   </TableRow>
@@ -406,41 +403,22 @@ function ManageTab() {
                       r.cost_price !== null
                         ? Number(r.cost_price) * r.request_quantity
                         : info.price * r.request_quantity;
-                    const status = r.need_return
-                      ? i % 3 === 0
-                        ? "已处理"
-                        : "使用中"
-                      : "使用中";
+                    // 模拟审批状态：每 4 条出现 1 条审批中
+                    const approvalStatus = i % 4 === 1 ? "审批中" : "已通过";
                     return (
                       <TableRow key={r.id}>
-                        <TableCell className="font-medium">{r.applicant}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">{info.name}</div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {r.product_code}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {r.request_quantity}
-                        </TableCell>
                         <TableCell>
                           <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-mono text-blue-700 border border-blue-100">
                             {r.approval_no}
                           </span>
                         </TableCell>
                         <TableCell>
-                          {r.need_return ? (
-                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0">
-                              是
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="border-0">
-                              否
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          ¥{value.toLocaleString()}
+                          <Badge
+                            variant="outline"
+                            className={`border ${FLOW_BADGE[r.flow_type]}`}
+                          >
+                            {FLOW_LABELS[r.flow_type]}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                           <Calendar className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />
@@ -453,13 +431,48 @@ function ManageTab() {
                           })}
                         </TableCell>
                         <TableCell>
-                          {status === "使用中" ? (
+                          <div className="space-y-0.5 min-w-[220px]">
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">申请人：</span>
+                              <span className="font-medium">{r.applicant}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">物料：</span>
+                              <span className="font-medium">{info.name}</span>
+                              <span className="ml-1 text-xs text-muted-foreground font-mono">
+                                ({r.product_code})
+                              </span>
+                            </div>
+                            <div className="text-sm flex flex-wrap gap-x-3 gap-y-0.5">
+                              <span>
+                                <span className="text-muted-foreground">数量：</span>
+                                <span className="tabular-nums">{r.request_quantity}</span>
+                              </span>
+                              <span>
+                                <span className="text-muted-foreground">价值：</span>
+                                <span className="tabular-nums">
+                                  ¥{value.toLocaleString()}
+                                </span>
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <span className="text-muted-foreground">需归还：</span>
+                                {r.need_return ? (
+                                  <span className="text-orange-700 font-medium">是</span>
+                                ) : (
+                                  <span className="text-slate-500">否</span>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {approvalStatus === "已通过" ? (
                             <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0">
-                              使用中
+                              已通过
                             </Badge>
                           ) : (
-                            <Badge variant="secondary" className="border-0">
-                              已处理
+                            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0">
+                              审批中
                             </Badge>
                           )}
                         </TableCell>

@@ -232,7 +232,6 @@ const MATERIAL_VALUE_OPTIONS: Record<string, { value: string; label: string }[]>
   asset_status: [
     { value: "使用中", label: "使用中" },
     { value: "已处理", label: "已处理" },
-    { value: "需归还", label: "需归还" },
   ],
   need_return: [
     { value: "是", label: "是" },

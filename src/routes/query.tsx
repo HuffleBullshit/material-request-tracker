@@ -223,7 +223,15 @@ function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[
 function QueryPage() {
   const navigate = useNavigate();
   const [sourceKey, setSourceKey] = useState<string>("stock");
-  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>(
+    () =>
+      Object.fromEntries(
+        DATA_SOURCES.filter((s) => s.defaultFields).map((s) => [
+          s.key,
+          s.defaultFields!,
+        ]),
+      ),
+  );
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);

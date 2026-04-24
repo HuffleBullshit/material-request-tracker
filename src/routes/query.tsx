@@ -178,6 +178,17 @@ interface Condition {
   value: string;
 }
 
+// 各数据源的可用条件字段限制（key 为字段，value 为允许的操作符）
+// 未在此映射中的数据源使用全部字段 + 全部操作符
+const SOURCE_CONDITION_FIELDS: Record<string, Record<string, string[]>> = {
+  stock: {
+    product_name: ["like"],
+    product_code: ["eq"],
+    product_category: ["eq"],
+    warehouse: ["eq"],
+  },
+};
+
 interface Template {
   id: string;
   name: string;
@@ -270,13 +281,25 @@ function QueryPage() {
     }));
   };
 
+  const conditionFieldMap = SOURCE_CONDITION_FIELDS[sourceKey];
+  const allowedConditionFields = conditionFieldMap
+    ? source.fields.filter((f) => f.key in conditionFieldMap)
+    : source.fields;
+  const getAllowedOps = (fieldKey: string) => {
+    if (!conditionFieldMap) return OPERATORS;
+    const allowed = conditionFieldMap[fieldKey] ?? [];
+    return OPERATORS.filter((o) => allowed.includes(o.value));
+  };
+
   const addCondition = () => {
+    const firstField = allowedConditionFields[0]?.key ?? "";
+    const firstOp = getAllowedOps(firstField)[0]?.value ?? "eq";
     setConditions((prev) => [
       ...prev,
       {
         id: crypto.randomUUID(),
-        field: source.fields[0]?.key ?? "",
-        op: "eq",
+        field: firstField,
+        op: firstOp,
         value: "",
       },
     ]);
@@ -459,13 +482,19 @@ function QueryPage() {
                     >
                       <Select
                         value={c.field}
-                        onValueChange={(v) => updateCondition(c.id, { field: v })}
+                        onValueChange={(v) => {
+                          const ops = getAllowedOps(v);
+                          const nextOp = ops.some((o) => o.value === c.op)
+                            ? c.op
+                            : (ops[0]?.value ?? "eq");
+                          updateCondition(c.id, { field: v, op: nextOp });
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {source.fields.map((f) => (
+                          {allowedConditionFields.map((f) => (
                             <SelectItem key={f.key} value={f.key}>
                               {f.label}
                             </SelectItem>
@@ -480,7 +509,7 @@ function QueryPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {OPERATORS.map((o) => (
+                          {getAllowedOps(c.field).map((o) => (
                             <SelectItem key={o.value} value={o.value}>
                               {o.label}
                             </SelectItem>

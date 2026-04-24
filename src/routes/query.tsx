@@ -482,13 +482,19 @@ function QueryPage() {
                     >
                       <Select
                         value={c.field}
-                        onValueChange={(v) => updateCondition(c.id, { field: v })}
+                        onValueChange={(v) => {
+                          const ops = getAllowedOps(v);
+                          const nextOp = ops.some((o) => o.value === c.op)
+                            ? c.op
+                            : (ops[0]?.value ?? "eq");
+                          updateCondition(c.id, { field: v, op: nextOp });
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {source.fields.map((f) => (
+                          {allowedConditionFields.map((f) => (
                             <SelectItem key={f.key} value={f.key}>
                               {f.label}
                             </SelectItem>
@@ -503,7 +509,7 @@ function QueryPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {OPERATORS.map((o) => (
+                          {getAllowedOps(c.field).map((o) => (
                             <SelectItem key={o.value} value={o.value}>
                               {o.label}
                             </SelectItem>

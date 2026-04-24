@@ -166,6 +166,8 @@ function ManageTab() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [needReturn, setNeedReturn] = useState<string>("all");
   const [date, setDate] = useState("");
+  const [flowType, setFlowType] = useState<string>("all");
+  const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -175,6 +177,8 @@ function ManageTab() {
       .order("request_time", { ascending: false });
     if (needReturn === "yes") q = q.eq("need_return", true);
     if (needReturn === "no") q = q.eq("need_return", false);
+    if (flowType !== "all")
+      q = q.eq("flow_type", flowType as "lingyong" | "tuihuan" | "zhuanyi");
     if (date) {
       const start = new Date(date);
       const end = new Date(date);
@@ -198,16 +202,32 @@ function ManageTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 模拟审批状态：基于 id 哈希稳定派生 —— 大多已通过，少量审批中/已拒绝
+  const deriveApproval = (id: string): "已通过" | "审批中" | "已拒绝" => {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    const m = h % 10;
+    if (m === 0) return "已拒绝";
+    if (m <= 2) return "审批中";
+    return "已通过";
+  };
+
   const filtered = useMemo(() => {
     const k = keyword.trim().toLowerCase();
-    if (!k) return rows;
-    return rows.filter(
-      (r) =>
-        r.applicant.toLowerCase().includes(k) ||
-        r.product_code.toLowerCase().includes(k) ||
-        r.approval_no.toLowerCase().includes(k),
-    );
-  }, [rows, keyword]);
+    let list = rows;
+    if (k) {
+      list = list.filter(
+        (r) =>
+          r.product_code.toLowerCase().includes(k) ||
+          productInfo(r.product_code).name.toLowerCase().includes(k) ||
+          r.approval_no.toLowerCase().includes(k),
+      );
+    }
+    if (approvalStatus !== "all") {
+      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
+    }
+    return list;
+  }, [rows, keyword, approvalStatus]);
 
   const stats = useMemo(() => {
     const total = filtered.length;
@@ -312,7 +332,7 @@ function ManageTab() {
               <Input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="搜索申请人、产品编号或审批编号…"
+                placeholder="搜索产品编号、产品名称或审批编号…"
                 className="pl-9"
               />
             </div>
@@ -328,6 +348,34 @@ function ManageTab() {
 
           {filterOpen && (
             <div className="grid gap-3 md:grid-cols-2 rounded-lg border bg-slate-50/60 p-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs">单据类型</Label>
+                <Select value={flowType} onValueChange={setFlowType}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="lingyong">申领单</SelectItem>
+                    <SelectItem value="zhuanyi">转移单</SelectItem>
+                    <SelectItem value="tuihuan">退还单</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">审批状态</Label>
+                <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="已通过">已通过</SelectItem>
+                    <SelectItem value="审批中">审批中</SelectItem>
+                    <SelectItem value="已拒绝">已拒绝</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">是否需要归还</Label>
                 <Select value={needReturn} onValueChange={setNeedReturn}>
@@ -357,6 +405,8 @@ function ManageTab() {
                   onClick={() => {
                     setNeedReturn("all");
                     setDate("");
+                    setFlowType("all");
+                    setApprovalStatus("all");
                     setTimeout(load, 0);
                   }}
                 >
@@ -397,14 +447,13 @@ function ManageTab() {
                   </TableRow>
                 )}
                 {!loading &&
-                  filtered.map((r, i) => {
+                  filtered.map((r) => {
                     const info = productInfo(r.product_code);
                     const value =
                       r.cost_price !== null
                         ? Number(r.cost_price) * r.request_quantity
                         : info.price * r.request_quantity;
-                    // 模拟审批状态：每 4 条出现 1 条审批中
-                    const approvalStatus = i % 4 === 1 ? "审批中" : "已通过";
+                    const approval = deriveApproval(r.id);
                     return (
                       <TableRow key={r.id}>
                         <TableCell>
@@ -466,13 +515,19 @@ function ManageTab() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {approvalStatus === "已通过" ? (
+                          {approval === "已通过" && (
                             <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0">
                               已通过
                             </Badge>
-                          ) : (
+                          )}
+                          {approval === "审批中" && (
                             <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0">
                               审批中
+                            </Badge>
+                          )}
+                          {approval === "已拒绝" && (
+                            <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-0">
+                              已拒绝
                             </Badge>
                           )}
                         </TableCell>

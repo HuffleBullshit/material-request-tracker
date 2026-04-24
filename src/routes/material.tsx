@@ -515,13 +515,19 @@ function ManageTab() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {approvalStatus === "已通过" ? (
+                          {approval === "已通过" && (
                             <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0">
                               已通过
                             </Badge>
-                          ) : (
+                          )}
+                          {approval === "审批中" && (
                             <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0">
                               审批中
+                            </Badge>
+                          )}
+                          {approval === "已拒绝" && (
+                            <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-0">
+                              已拒绝
                             </Badge>
                           )}
                         </TableCell>

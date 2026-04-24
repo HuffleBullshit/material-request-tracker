@@ -701,14 +701,14 @@ function QueryPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {getAllowedOps(c.field).map((o) => {
-                            const label =
+                            const isMaterialForLabel =
                               sourceKey === "material" &&
-                              o.value === "eq" &&
-                              ["asset_status", "applicant", "need_return", "request_time"].includes(
-                                c.field,
-                              )
-                                ? "为"
-                                : o.label;
+                              ((o.value === "eq" &&
+                                ["asset_status", "applicant", "need_return"].includes(
+                                  c.field,
+                                )) ||
+                                (o.value === "between" && c.field === "request_time"));
+                            const label = isMaterialForLabel ? "为" : o.label;
                             return (
                               <SelectItem key={o.value} value={o.value}>
                                 {label}

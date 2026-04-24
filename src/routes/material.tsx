@@ -447,14 +447,13 @@ function ManageTab() {
                   </TableRow>
                 )}
                 {!loading &&
-                  filtered.map((r, i) => {
+                  filtered.map((r) => {
                     const info = productInfo(r.product_code);
                     const value =
                       r.cost_price !== null
                         ? Number(r.cost_price) * r.request_quantity
                         : info.price * r.request_quantity;
-                    // 模拟审批状态：每 4 条出现 1 条审批中
-                    const approvalStatus = i % 4 === 1 ? "审批中" : "已通过";
+                    const approval = deriveApproval(r.id);
                     return (
                       <TableRow key={r.id}>
                         <TableCell>

@@ -700,11 +700,21 @@ function QueryPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {getAllowedOps(c.field).map((o) => (
-                            <SelectItem key={o.value} value={o.value}>
-                              {o.label}
-                            </SelectItem>
-                          ))}
+                          {getAllowedOps(c.field).map((o) => {
+                            const label =
+                              sourceKey === "material" &&
+                              o.value === "eq" &&
+                              ["asset_status", "applicant", "need_return", "request_time"].includes(
+                                c.field,
+                              )
+                                ? "为"
+                                : o.label;
+                            return (
+                              <SelectItem key={o.value} value={o.value}>
+                                {label}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       {sourceKey === "material" && c.field === "request_time" ? (

@@ -288,16 +288,6 @@ function MyRequests() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 模拟审批状态
-  const deriveApproval = (id: string): "已通过" | "审批中" | "已拒绝" => {
-    let h = 0;
-    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-    const m = h % 10;
-    if (m === 0) return "已拒绝";
-    if (m <= 2) return "审批中";
-    return "已通过";
-  };
-
   const filtered = useMemo(() => {
     const k = keyword.trim().toLowerCase();
     let list = rows;
@@ -309,11 +299,8 @@ function MyRequests() {
           r.approval_no.toLowerCase().includes(k),
       );
     }
-    if (approvalStatus !== "all") {
-      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
-    }
     return list;
-  }, [rows, keyword, approvalStatus]);
+  }, [rows, keyword]);
 
   const stats = useMemo(() => {
     const total = filtered.length;

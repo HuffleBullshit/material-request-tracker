@@ -40,6 +40,14 @@ import {
   Trash2,
   Loader2,
   Download,
+  ChevronDown,
+  ChevronUp,
+  Package,
+  Activity,
+  CheckCircle2,
+  RotateCcw,
+  ArrowRightLeft,
+  Undo2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/query")({

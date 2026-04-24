@@ -402,41 +402,32 @@ function MyRequests() {
       </div>
 
       {filterOpen && (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 rounded-lg border bg-slate-50/60 p-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs">单据类型</Label>
-            <Select value={flowType} onValueChange={setFlowType}>
-              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="lingyong">申领单</SelectItem>
-                <SelectItem value="zhuanyi">转移单</SelectItem>
-                <SelectItem value="tuihuan">退还单</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">审批状态</Label>
-            <Select value={approvalStatus} onValueChange={setApprovalStatus}>
-              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="approved">已通过</SelectItem>
-                <SelectItem value="pending">审批中</SelectItem>
-                <SelectItem value="rejected">已拒绝</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">是否需要归还</Label>
-            <Select value={needReturn} onValueChange={setNeedReturn}>
-              <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="yes">是</SelectItem>
-                <SelectItem value="no">否</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="space-y-3 rounded-lg border bg-slate-50/60 p-4">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">单据类型</Label>
+              <Select value={flowType} onValueChange={setFlowType}>
+                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部</SelectItem>
+                  <SelectItem value="lingyong">申领单</SelectItem>
+                  <SelectItem value="zhuanyi">转移单</SelectItem>
+                  <SelectItem value="tuihuan">退还单</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">审批状态</Label>
+              <Select value={approvalStatus} onValueChange={setApprovalStatus}>
+                <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部</SelectItem>
+                  <SelectItem value="approved">已通过</SelectItem>
+                  <SelectItem value="pending">审批中</SelectItem>
+                  <SelectItem value="rejected">已拒绝</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">申请日期</Label>
@@ -446,7 +437,7 @@ function MyRequests() {
               <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white" />
             </div>
           </div>
-          <div className="md:col-span-2 flex justify-end gap-2">
+          <div className="flex justify-end gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -551,11 +542,11 @@ function MyRequests() {
 }
 
 // ---------- 我的资产 ----------
+type AssetStatus = "使用中" | "需归还" | "已处理";
+
 function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
   const [rows, setRows] = useState<RecordRow[]>([]);
-  const [statusFilter, setStatusFilter] = useState<"使用中" | "已处理">(
-    "使用中",
-  );
+  const [statusFilter, setStatusFilter] = useState<AssetStatus>("使用中");
 
   useEffect(() => {
     (async () => {
@@ -569,49 +560,79 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
     })();
   }, []);
 
-  // 模拟分配资产状态
-  const assets = rows.map((r, i) => ({
-    ...r,
-    status: r.need_return && i % 3 === 0 ? "已处理" : "使用中",
-    deviceId: `NB${20260000 + i + 1}`,
-  }));
+  // 模拟分配资产状态：已处理 > 需归还 > 使用中
+  const assets = rows.map((r, i) => {
+    let status: AssetStatus;
+    if (r.need_return && i % 3 === 0) status = "已处理";
+    else if (r.need_return) status = "需归还";
+    else status = "使用中";
+    return { ...r, status, deviceId: `NB${20260000 + i + 1}` };
+  });
 
   const inUseCount = assets.filter((a) => a.status === "使用中").length;
+  const needReturnCount = assets.filter((a) => a.status === "需归还").length;
   const processedCount = assets.filter((a) => a.status === "已处理").length;
   const filtered = assets.filter((a) => a.status === statusFilter);
 
+  const statusMeta: Record<
+    AssetStatus,
+    { count: number; cardCls: string; labelCls: string; valueCls: string; badgeCls: string }
+  > = {
+    使用中: {
+      count: inUseCount,
+      cardCls: "border-2 border-emerald-200 bg-emerald-50/50",
+      labelCls: "text-emerald-700",
+      valueCls: "text-emerald-700",
+      badgeCls: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0",
+    },
+    需归还: {
+      count: needReturnCount,
+      cardCls: "border-2 border-orange-200 bg-orange-50/50",
+      labelCls: "text-orange-700",
+      valueCls: "text-orange-700",
+      badgeCls: "bg-orange-100 text-orange-700 hover:bg-orange-100 border-0",
+    },
+    已处理: {
+      count: processedCount,
+      cardCls: "border bg-slate-50",
+      labelCls: "text-slate-600",
+      valueCls: "text-slate-700",
+      badgeCls: "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0",
+    },
+  };
+
+  const statusList: AssetStatus[] = ["使用中", "需归还", "已处理"];
+
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50/50 p-4">
-          <div className="text-xs text-emerald-700">使用中</div>
-          <div className="mt-1 text-2xl font-bold text-emerald-700 tabular-nums">
-            {inUseCount}
-          </div>
-        </div>
-        <div className="rounded-lg border bg-slate-50 p-4">
-          <div className="text-xs text-slate-600">已处理</div>
-          <div className="mt-1 text-2xl font-bold text-slate-700 tabular-nums">
-            {processedCount}
-          </div>
-        </div>
+      <div className="grid grid-cols-3 gap-3">
+        {statusList.map((s) => {
+          const m = statusMeta[s];
+          return (
+            <div key={s} className={`rounded-lg p-4 ${m.cardCls}`}>
+              <div className={`text-xs ${m.labelCls} inline-flex items-center gap-1`}>
+                {s === "需归还" && <RotateCcw className="h-3 w-3" />}
+                {s}
+              </div>
+              <div className={`mt-1 text-2xl font-bold tabular-nums ${m.valueCls}`}>
+                {m.count}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant={statusFilter === "使用中" ? "default" : "outline"}
-          onClick={() => setStatusFilter("使用中")}
-        >
-          使用中
-        </Button>
-        <Button
-          size="sm"
-          variant={statusFilter === "已处理" ? "default" : "outline"}
-          onClick={() => setStatusFilter("已处理")}
-        >
-          已处理
-        </Button>
+        {statusList.map((s) => (
+          <Button
+            key={s}
+            size="sm"
+            variant={statusFilter === s ? "default" : "outline"}
+            onClick={() => setStatusFilter(s)}
+          >
+            {s}
+          </Button>
+        ))}
       </div>
 
       <div className="space-y-3">
@@ -622,6 +643,7 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
         )}
         {filtered.map((a) => {
           const info = productInfo(a.product_code);
+          const m = statusMeta[a.status];
           return (
             <div
               key={a.id}
@@ -644,26 +666,13 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <Badge
-                    className={
-                      a.status === "使用中"
-                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0"
-                    }
-                  >
-                    {a.status}
-                  </Badge>
-                  {a.need_return && (
-                    <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 gap-1">
-                      <RotateCcw className="h-3 w-3" />
-                      需归还
-                    </Badge>
-                  )}
-                </div>
+                <Badge className={`${m.badgeCls} gap-1`}>
+                  {a.status === "需归还" && <RotateCcw className="h-3 w-3" />}
+                  {a.status}
+                </Badge>
               </div>
 
-              {a.status === "使用中" && a.need_return && (
+              {a.status === "需归还" && (
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"

@@ -35,7 +35,6 @@ import { toast } from "sonner";
 import {
   Home,
   Package,
-  Activity,
   CheckCircle2,
   RotateCcw,
   Box,
@@ -47,7 +46,35 @@ import {
   Eye,
   ArrowRightLeft,
   Undo2,
+  Clock,
+  XCircle,
 } from "lucide-react";
+
+// 审批状态（根据 id 稳定派生，便于演示）
+type ApprovalStatus = "approved" | "pending" | "rejected";
+const APPROVAL_LABELS: Record<ApprovalStatus, string> = {
+  approved: "已通过",
+  pending: "审批中",
+  rejected: "已拒绝",
+};
+const APPROVAL_BADGE: Record<ApprovalStatus, string> = {
+  approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  rejected: "bg-rose-50 text-rose-700 border-rose-200",
+};
+const APPROVAL_ICON: Record<ApprovalStatus, typeof CheckCircle2> = {
+  approved: CheckCircle2,
+  pending: Clock,
+  rejected: XCircle,
+};
+function deriveApproval(id: string): ApprovalStatus {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  const m = h % 10;
+  if (m < 6) return "approved"; // 60%
+  if (m < 9) return "pending"; // 30%
+  return "rejected"; // 10%
+}
 
 export const Route = createFileRoute("/material")({
   head: () => ({

@@ -601,6 +601,12 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                 >
                   {a.status}
                 </Badge>
+                {a.need_return && (
+                  <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 gap-1">
+                    <RotateCcw className="h-3 w-3" />
+                    需归还
+                  </Badge>
+                )}
               </div>
 
               {a.status === "使用中" && a.need_return && (

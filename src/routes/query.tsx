@@ -61,6 +61,7 @@ interface DataSource {
   title: string;
   desc: string;
   fields: FieldDef[];
+  defaultFields?: string[];
 }
 
 const DATA_SOURCES: DataSource[] = [
@@ -82,13 +83,29 @@ const DATA_SOURCES: DataSource[] = [
     title: "库存信息",
     desc: "查询产品库存数据",
     fields: [
-      { key: "product_code", label: "产品编码" },
       { key: "product_name", label: "产品名称" },
+      { key: "product_code", label: "产品编号" },
+      { key: "product_category", label: "产品分类" },
       { key: "warehouse", label: "仓库" },
       { key: "qty", label: "库存数量" },
-      { key: "available", label: "可用库存" },
-      { key: "locked", label: "锁定库存" },
-      { key: "last_out_date", label: "最后出库日期" },
+      { key: "frozen_qty", label: "冻结数量" },
+      { key: "base_qty_total", label: "基本数量合计" },
+      { key: "remark", label: "备注" },
+      { key: "product_model", label: "产品型号" },
+      { key: "unit", label: "单位" },
+      { key: "aux_qty", label: "辅助数量" },
+      { key: "batch_no", label: "批号" },
+      { key: "location", label: "库位" },
+    ],
+    defaultFields: [
+      "product_name",
+      "product_code",
+      "product_category",
+      "warehouse",
+      "qty",
+      "frozen_qty",
+      "base_qty_total",
+      "remark",
     ],
   },
   {
@@ -206,7 +223,15 @@ function mockRun(source: DataSource, fields: string[]): Record<string, unknown>[
 function QueryPage() {
   const navigate = useNavigate();
   const [sourceKey, setSourceKey] = useState<string>("stock");
-  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>(
+    () =>
+      Object.fromEntries(
+        DATA_SOURCES.filter((s) => s.defaultFields).map((s) => [
+          s.key,
+          s.defaultFields!,
+        ]),
+      ),
+  );
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);

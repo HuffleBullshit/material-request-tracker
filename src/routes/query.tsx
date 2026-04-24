@@ -271,8 +271,8 @@ function QueryPage() {
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
-  // 字段选择面板默认收起（物料模块默认收起；其它模块默认展开）
-  const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(true);
+  // 字段选择面板：物料模块默认收起，其它模块默认展开
+  const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(false);
 
   // 模板
   const [tplOpen, setTplOpen] = useState(false);

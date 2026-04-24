@@ -708,16 +708,71 @@ function QueryPage() {
                             const f = source.fields.find((x) => x.key === k);
                             return <TableHead key={k}>{f?.label ?? k}</TableHead>;
                           })}
+                          {sourceKey === "material" && (
+                            <TableHead className="text-right">操作</TableHead>
+                          )}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {results.map((row, i) => (
                           <TableRow key={i}>
-                            {fields.map((k) => (
-                              <TableCell key={k} className="text-sm">
-                                {String(row[k] ?? "—")}
+                            {fields.map((k) => {
+                              const v = row[k];
+                              if (k === "asset_status") {
+                                const status = String(v);
+                                const cls =
+                                  status === "使用中"
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : status === "已处理"
+                                      ? "bg-violet-100 text-violet-700"
+                                      : status === "需归还"
+                                        ? "bg-rose-100 text-rose-700"
+                                        : "bg-slate-100 text-slate-700";
+                                return (
+                                  <TableCell key={k}>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+                                    >
+                                      {status}
+                                    </span>
+                                  </TableCell>
+                                );
+                              }
+                              return (
+                                <TableCell key={k} className="text-sm">
+                                  {String(v ?? "—")}
+                                </TableCell>
+                              );
+                            })}
+                            {sourceKey === "material" && (
+                              <TableCell className="text-right whitespace-nowrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="mr-1.5 h-7 px-2 text-xs"
+                                  onClick={() =>
+                                    toast.success(
+                                      `已发起转移：${row.product_code ?? row.device_id ?? "记录"}`,
+                                    )
+                                  }
+                                >
+                                  <ArrowRightLeft className="mr-1 h-3 w-3" />
+                                  转移
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="h-7 px-2 text-xs bg-rose-500 hover:bg-rose-600 text-white"
+                                  onClick={() =>
+                                    toast.success(
+                                      `已发起退还：${row.product_code ?? row.device_id ?? "记录"}`,
+                                    )
+                                  }
+                                >
+                                  <Undo2 className="mr-1 h-3 w-3" />
+                                  退还
+                                </Button>
                               </TableCell>
-                            ))}
+                            )}
                           </TableRow>
                         ))}
                       </TableBody>

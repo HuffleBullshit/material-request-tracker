@@ -392,12 +392,21 @@ function ManageTab() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">申请日期</Label>
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="bg-white"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={dateStart}
+                    onChange={(e) => setDateStart(e.target.value)}
+                    className="bg-white"
+                  />
+                  <span className="text-xs text-muted-foreground">至</span>
+                  <Input
+                    type="date"
+                    value={dateEnd}
+                    onChange={(e) => setDateEnd(e.target.value)}
+                    className="bg-white"
+                  />
+                </div>
               </div>
               <div className="md:col-span-2 flex justify-end gap-2">
                 <Button

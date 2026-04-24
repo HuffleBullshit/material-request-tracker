@@ -493,10 +493,6 @@ function ManageTab() {
                         <TableCell>
                           <div className="space-y-0.5 min-w-[220px]">
                             <div className="text-sm">
-                              <span className="text-muted-foreground">申请人：</span>
-                              <span className="font-medium">{r.applicant}</span>
-                            </div>
-                            <div className="text-sm">
                               <span className="text-muted-foreground">物料：</span>
                               <span className="font-medium">{info.name}</span>
                               <span className="ml-1 text-xs text-muted-foreground font-mono">
@@ -507,12 +503,6 @@ function ManageTab() {
                               <span>
                                 <span className="text-muted-foreground">数量：</span>
                                 <span className="tabular-nums">{r.request_quantity}</span>
-                              </span>
-                              <span>
-                                <span className="text-muted-foreground">价值：</span>
-                                <span className="tabular-nums">
-                                  ¥{value.toLocaleString()}
-                                </span>
                               </span>
                               <span className="inline-flex items-center gap-1">
                                 <span className="text-muted-foreground">需归还：</span>

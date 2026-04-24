@@ -708,13 +708,63 @@ function QueryPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Input
-                        value={c.value}
-                        onChange={(e) =>
-                          updateCondition(c.id, { value: e.target.value })
-                        }
-                        placeholder="输入值"
-                      />
+                      {sourceKey === "material" && c.field === "request_time" ? (
+                        <Input
+                          type="date"
+                          value={c.value}
+                          onChange={(e) =>
+                            updateCondition(c.id, { value: e.target.value })
+                          }
+                        />
+                      ) : sourceKey === "material" && c.field === "applicant" ? (
+                        <Select
+                          value={c.value}
+                          onValueChange={(v) => updateCondition(c.id, { value: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择部门或人员" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {APPLICANT_OPTIONS.map((g) => (
+                              <div key={g.group}>
+                                <div className="px-2 py-1 text-xs text-slate-400">
+                                  {g.group}
+                                </div>
+                                {g.items.map((name) => (
+                                  <SelectItem key={name} value={name}>
+                                    {name}
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : sourceKey === "material" &&
+                        MATERIAL_VALUE_OPTIONS[c.field] ? (
+                        <Select
+                          value={c.value}
+                          onValueChange={(v) => updateCondition(c.id, { value: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="请选择" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {MATERIAL_VALUE_OPTIONS[c.field].map((o) => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          value={c.value}
+                          onChange={(e) =>
+                            updateCondition(c.id, { value: e.target.value })
+                          }
+                          placeholder="输入值"
+                        />
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"

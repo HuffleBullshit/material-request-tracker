@@ -217,7 +217,7 @@ const SOURCE_CONDITION_FIELDS: Record<string, Record<string, string[]>> = {
     asset_status: ["eq"],
     applicant: ["eq"],
     need_return: ["eq"],
-    request_time: ["eq"],
+    request_time: ["between"],
   },
 };
 
@@ -701,14 +701,14 @@ function QueryPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {getAllowedOps(c.field).map((o) => {
-                            const label =
+                            const isMaterialForLabel =
                               sourceKey === "material" &&
-                              o.value === "eq" &&
-                              ["asset_status", "applicant", "need_return", "request_time"].includes(
-                                c.field,
-                              )
-                                ? "为"
-                                : o.label;
+                              ((o.value === "eq" &&
+                                ["asset_status", "applicant", "need_return"].includes(
+                                  c.field,
+                                )) ||
+                                (o.value === "between" && c.field === "request_time"));
+                            const label = isMaterialForLabel ? "为" : o.label;
                             return (
                               <SelectItem key={o.value} value={o.value}>
                                 {label}
@@ -718,13 +718,32 @@ function QueryPage() {
                         </SelectContent>
                       </Select>
                       {sourceKey === "material" && c.field === "request_time" ? (
-                        <Input
-                          type="date"
-                          value={c.value}
-                          onChange={(e) =>
-                            updateCondition(c.id, { value: e.target.value })
-                          }
-                        />
+                        (() => {
+                          const [start, end] = (c.value || "~").split("~");
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              <Input
+                                type="date"
+                                value={start || ""}
+                                onChange={(e) =>
+                                  updateCondition(c.id, {
+                                    value: `${e.target.value}~${end || ""}`,
+                                  })
+                                }
+                              />
+                              <span className="text-xs text-slate-400">至</span>
+                              <Input
+                                type="date"
+                                value={end || ""}
+                                onChange={(e) =>
+                                  updateCondition(c.id, {
+                                    value: `${start || ""}~${e.target.value}`,
+                                  })
+                                }
+                              />
+                            </div>
+                          );
+                        })()
                       ) : sourceKey === "material" && c.field === "applicant" ? (
                         <Select
                           value={c.value}
@@ -856,15 +875,21 @@ function QueryPage() {
                               }
                               if (k === "need_return") {
                                 const yes = String(v) === "是";
-                                const cls = yes
-                                  ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
-                                  : "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
                                 return (
                                   <TableCell key={k}>
                                     <span
-                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}
+                                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
+                                        yes
+                                          ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 ring-1 ring-amber-300"
+                                          : "bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 ring-1 ring-emerald-200"
+                                      }`}
                                     >
-                                      {String(v)}
+                                      <span
+                                        className={`h-1.5 w-1.5 rounded-full ${
+                                          yes ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
+                                        }`}
+                                      />
+                                      {yes ? "需归还" : "无需归还"}
                                     </span>
                                   </TableCell>
                                 );

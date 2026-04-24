@@ -165,7 +165,8 @@ function ManageTab() {
   const [keyword, setKeyword] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [needReturn, setNeedReturn] = useState<string>("all");
-  const [date, setDate] = useState("");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
   const [flowType, setFlowType] = useState<string>("all");
   const [approvalStatus, setApprovalStatus] = useState<string>("all");
 
@@ -179,14 +180,14 @@ function ManageTab() {
     if (needReturn === "no") q = q.eq("need_return", false);
     if (flowType !== "all")
       q = q.eq("flow_type", flowType as "lingyong" | "tuihuan" | "zhuanyi");
-    if (date) {
-      const start = new Date(date);
-      const end = new Date(date);
+    if (dateStart) {
+      const start = new Date(dateStart);
+      q = q.gte("request_time", start.toISOString());
+    }
+    if (dateEnd) {
+      const end = new Date(dateEnd);
       end.setHours(23, 59, 59, 999);
-      q = q.gte("request_time", start.toISOString()).lte(
-        "request_time",
-        end.toISOString(),
-      );
+      q = q.lte("request_time", end.toISOString());
     }
     const { data, error } = await q;
     if (error) {
@@ -391,12 +392,21 @@ function ManageTab() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">申请日期</Label>
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="bg-white"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={dateStart}
+                    onChange={(e) => setDateStart(e.target.value)}
+                    className="bg-white"
+                  />
+                  <span className="text-xs text-muted-foreground">至</span>
+                  <Input
+                    type="date"
+                    value={dateEnd}
+                    onChange={(e) => setDateEnd(e.target.value)}
+                    className="bg-white"
+                  />
+                </div>
               </div>
               <div className="md:col-span-2 flex justify-end gap-2">
                 <Button
@@ -404,7 +414,8 @@ function ManageTab() {
                   size="sm"
                   onClick={() => {
                     setNeedReturn("all");
-                    setDate("");
+                    setDateStart("");
+                    setDateEnd("");
                     setFlowType("all");
                     setApprovalStatus("all");
                     setTimeout(load, 0);
@@ -449,10 +460,6 @@ function ManageTab() {
                 {!loading &&
                   filtered.map((r) => {
                     const info = productInfo(r.product_code);
-                    const value =
-                      r.cost_price !== null
-                        ? Number(r.cost_price) * r.request_quantity
-                        : info.price * r.request_quantity;
                     const approval = deriveApproval(r.id);
                     return (
                       <TableRow key={r.id}>
@@ -482,10 +489,6 @@ function ManageTab() {
                         <TableCell>
                           <div className="space-y-0.5 min-w-[220px]">
                             <div className="text-sm">
-                              <span className="text-muted-foreground">申请人：</span>
-                              <span className="font-medium">{r.applicant}</span>
-                            </div>
-                            <div className="text-sm">
                               <span className="text-muted-foreground">物料：</span>
                               <span className="font-medium">{info.name}</span>
                               <span className="ml-1 text-xs text-muted-foreground font-mono">
@@ -496,12 +499,6 @@ function ManageTab() {
                               <span>
                                 <span className="text-muted-foreground">数量：</span>
                                 <span className="tabular-nums">{r.request_quantity}</span>
-                              </span>
-                              <span>
-                                <span className="text-muted-foreground">价值：</span>
-                                <span className="tabular-nums">
-                                  ¥{value.toLocaleString()}
-                                </span>
                               </span>
                               <span className="inline-flex items-center gap-1">
                                 <span className="text-muted-foreground">需归还：</span>

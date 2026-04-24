@@ -20,6 +20,13 @@ function Index() {
     <div className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
         <div className="mx-auto max-w-7xl px-4 py-4 flex items-center gap-3">
+          <Link
+            to="/"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border hover:bg-muted transition-colors"
+            aria-label="返回首页"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Package className="h-5 w-5" />
           </div>

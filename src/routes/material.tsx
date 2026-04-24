@@ -332,7 +332,7 @@ function ManageTab() {
               <Input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="搜索申请人、产品编号或审批编号…"
+                placeholder="搜索产品编号、产品名称或审批编号…"
                 className="pl-9"
               />
             </div>

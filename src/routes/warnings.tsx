@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Activity, ArrowLeft, Bell, Search, Package, Users as UsersIcon, AlertTriangle, ToggleRight } from "lucide-react";
+import { Plus, Trash2, Activity, ArrowLeft, Bell, Search, Package, Users as UsersIcon, AlertTriangle, ToggleRight, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/warnings")({

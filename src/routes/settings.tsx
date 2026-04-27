@@ -181,6 +181,7 @@ function AssetValueConfigPanel() {
             <tr>
               <th className="px-4 py-3 text-right font-medium">配置价 (元)</th>
               <th className="px-4 py-3 text-left font-medium">备注</th>
+              <th className="px-4 py-3 text-center font-medium">状态</th>
               <th className="px-4 py-3 text-left font-medium">更新时间</th>
               <th className="px-4 py-3 text-right font-medium">操作</th>
             </tr>
@@ -188,11 +189,11 @@ function AssetValueConfigPanel() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">加载中…</td>
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-400">加载中…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center">
+                <td colSpan={5} className="px-4 py-8 text-center">
                   <button onClick={() => openEdit(null)} className="text-indigo-600 hover:underline">
                     暂无配置，点击此处新增
                   </button>
@@ -205,6 +206,24 @@ function AssetValueConfigPanel() {
                   <tr key={it.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 text-right font-semibold text-indigo-700">¥ {Number(it.config_price).toLocaleString()}</td>
                     <td className="px-4 py-3 text-slate-500">{it.remark || "—"}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => toggleEnabled(it)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          it.enabled ? "bg-emerald-500" : "bg-slate-300"
+                        }`}
+                        title={it.enabled ? "点击停用" : "点击启用"}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                            it.enabled ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                      <div className={`mt-1 text-xs ${it.enabled ? "text-emerald-600" : "text-slate-400"}`}>
+                        {it.enabled ? "已启用" : "已停用"}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-xs text-slate-400">{new Date(it.updated_at).toLocaleString("zh-CN")}</td>
                     <td className="px-4 py-3 text-right">
                       <button

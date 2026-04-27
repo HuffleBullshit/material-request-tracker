@@ -90,29 +90,6 @@ const PRODUCT_NAME_MAP: Record<string, string> = {
   P005: "办公椅",
 };
 
-// ---------- 筛选字段定义（参考通用查询模块下拉筛选）----------
-const FILTER_FIELDS = [
-  { key: "product_name", label: "产品名称", type: "text" },
-  { key: "product_code", label: "产品编号", type: "text" },
-  { key: "warning_user", label: "预警人", type: "user" },
-  { key: "created_by", label: "设置人", type: "user" },
-  { key: "warehouse", label: "预警仓库", type: "warehouse" },
-  { key: "enabled", label: "预警开关", type: "enabled" },
-] as const;
-
-const OPERATORS_TEXT = [
-  { value: "like", label: "包含" },
-  { value: "eq", label: "等于" },
-];
-const OPERATORS_EQ = [{ value: "eq", label: "等于" }];
-
-interface FilterCond {
-  id: string;
-  field: string;
-  op: string;
-  value: string;
-}
-
 function StatCard({
   icon: Icon,
   label,
@@ -155,40 +132,33 @@ function WarningsPage() {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // 下拉筛选条件（参考通用查询）
-  const [filters, setFilters] = useState<FilterCond[]>([]);
-  const [appliedFilters, setAppliedFilters] = useState<FilterCond[]>([]);
-
-  const addFilter = () => {
-    setFilters((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        field: "product_name",
-        op: "like",
-        value: "",
-      },
-    ]);
-  };
-
-  const updateFilter = (id: string, patch: Partial<FilterCond>) => {
-    setFilters((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-    );
-  };
-
-  const removeFilter = (id: string) => {
-    setFilters((prev) => prev.filter((c) => c.id !== id));
-  };
+  // 搜索/筛选（参考物料管理-我的申请样式）
+  const [keyword, setKeyword] = useState("");
+  const [filterWarningUser, setFilterWarningUser] = useState<string>("all");
+  const [filterCreatedBy, setFilterCreatedBy] = useState<string>("all");
+  const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const [applied, setApplied] = useState({
+    keyword: "",
+    warningUser: "all",
+    createdBy: "all",
+    enabled: "all",
+  });
 
   const applyFilters = () => {
-    setAppliedFilters(filters);
-    toast.success(`已应用 ${filters.length} 个筛选条件`);
+    setApplied({
+      keyword: keyword.trim(),
+      warningUser: filterWarningUser,
+      createdBy: filterCreatedBy,
+      enabled: filterEnabled,
+    });
   };
 
   const resetFilters = () => {
-    setFilters([]);
-    setAppliedFilters([]);
+    setKeyword("");
+    setFilterWarningUser("all");
+    setFilterCreatedBy("all");
+    setFilterEnabled("all");
+    setApplied({ keyword: "", warningUser: "all", createdBy: "all", enabled: "all" });
   };
 
   const openCreate = () => {
@@ -309,95 +279,25 @@ function WarningsPage() {
   const methodLabel = (m: string) =>
     METHOD_OPTIONS.find((o) => o.value === m)?.label ?? m;
 
-  // 应用已确认的筛选条件
+  // 应用搜索 + 筛选
   const filtered = list.filter((row) => {
-    return appliedFilters.every((c) => {
-      const def = FILTER_FIELDS.find((f) => f.key === c.field);
-      if (!def) return true;
-      if (!c.value) return true;
-      const raw = (row as unknown as Record<string, unknown>)[c.field];
-      if (def.type === "enabled") {
-        const want = c.value === "on";
-        return row.enabled === want;
-      }
-      const v = String(raw ?? "").toLowerCase();
-      const target = c.value.toLowerCase();
-      if (c.op === "like") return v.includes(target);
-      return v === target;
-    });
+    if (applied.keyword) {
+      const k = applied.keyword.toLowerCase();
+      const hit =
+        row.product_code.toLowerCase().includes(k) ||
+        (row.product_name ?? "").toLowerCase().includes(k);
+      if (!hit) return false;
+    }
+    if (applied.warningUser !== "all" && row.warning_user !== applied.warningUser)
+      return false;
+    if (applied.createdBy !== "all" && row.created_by !== applied.createdBy)
+      return false;
+    if (applied.enabled !== "all") {
+      const want = applied.enabled === "on";
+      if (row.enabled !== want) return false;
+    }
+    return true;
   });
-
-  const renderValueInput = (c: FilterCond) => {
-    const def = FILTER_FIELDS.find((f) => f.key === c.field);
-    if (!def) return null;
-    if (def.type === "user") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            {USERS.map((u) => (
-              <SelectItem key={u} value={u}>
-                {u}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-    if (def.type === "warehouse") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            {WAREHOUSES.map((w) => (
-              <SelectItem key={w} value={w}>
-                {w}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-    if (def.type === "enabled") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="on">已启用</SelectItem>
-            <SelectItem value="off">已停用</SelectItem>
-          </SelectContent>
-        </Select>
-      );
-    }
-    return (
-      <Input
-        value={c.value}
-        onChange={(e) => updateFilter(c.id, { value: e.target.value })}
-        placeholder="输入值"
-      />
-    );
-  };
-
-  const getOps = (fieldKey: string) => {
-    const def = FILTER_FIELDS.find((f) => f.key === fieldKey);
-    if (!def) return OPERATORS_EQ;
-    return def.type === "text" ? OPERATORS_TEXT : OPERATORS_EQ;
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -457,94 +357,85 @@ function WarningsPage() {
           />
         </div>
 
-        {/* 筛选区（参考通用查询下拉筛选样式） */}
+        {/* 搜索与筛选（参考物料管理-我的申请样式） */}
         <Card className="mb-6 border-slate-200 shadow-sm">
-          <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+          <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <span className="inline-block h-4 w-1 rounded bg-blue-500" />
-              筛选条件
-              <span className="text-xs font-normal text-slate-500">
-                （已应用 {appliedFilters.length} 个）
-              </span>
+              搜索与筛选
             </CardTitle>
-            <Button size="sm" variant="outline" onClick={addFilter} className="gap-1">
-              <Plus className="h-4 w-4" /> 添加条件
-            </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {filters.length === 0 ? (
-              <div className="text-center text-sm text-slate-400 py-6 border border-dashed border-slate-200 rounded-lg">
-                暂无筛选条件，点击"添加条件"开始配置
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="space-y-1.5 md:col-span-1">
+                <Label>产品名称 / 编号</Label>
+                <Input
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="模糊搜索"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") applyFilters();
+                  }}
+                />
               </div>
-            ) : (
-              filters.map((c) => (
-                <div
-                  key={c.id}
-                  className="grid grid-cols-1 md:grid-cols-[1fr_140px_1fr_40px] gap-2 items-center"
-                >
-                  <Select
-                    value={c.field}
-                    onValueChange={(v) => {
-                      const ops = getOps(v);
-                      const nextOp = ops.some((o) => o.value === c.op)
-                        ? c.op
-                        : (ops[0]?.value ?? "eq");
-                      updateFilter(c.id, { field: v, op: nextOp, value: "" });
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FILTER_FIELDS.map((f) => (
-                        <SelectItem key={f.key} value={f.key}>
-                          {f.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={c.op}
-                    onValueChange={(v) => updateFilter(c.id, { op: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getOps(c.field).map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {renderValueInput(c)}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeFilter(c.id)}
-                    aria-label="删除条件"
-                  >
-                    <Trash2 className="h-4 w-4 text-rose-500" />
-                  </Button>
-                </div>
-              ))
-            )}
+              <div className="space-y-1.5">
+                <Label>预警人</Label>
+                <Select value={filterWarningUser} onValueChange={setFilterWarningUser}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    {USERS.map((u) => (
+                      <SelectItem key={u} value={u}>
+                        {u}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>设置人</Label>
+                <Select value={filterCreatedBy} onValueChange={setFilterCreatedBy}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    {USERS.map((u) => (
+                      <SelectItem key={u} value={u}>
+                        {u}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>预警开关</Label>
+                <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="on">已启用</SelectItem>
+                    <SelectItem value="off">已停用</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-            {filters.length > 0 && (
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <Button variant="outline" size="sm" onClick={resetFilters} className="gap-1">
-                  <RotateCcw className="h-3.5 w-3.5" /> 重置
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={applyFilters}
-                  className="gap-1 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Play className="h-3.5 w-3.5" /> 应用筛选
-                </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={applyFilters} className="gap-1 bg-blue-600 hover:bg-blue-700 text-white">
+                <Play className="h-4 w-4" /> 查询
+              </Button>
+              <Button variant="outline" onClick={resetFilters} className="gap-1">
+                <RotateCcw className="h-4 w-4" /> 重置
+              </Button>
+              <div className="ml-auto text-sm text-muted-foreground">
+                共 <span className="font-semibold text-foreground">{filtered.length}</span> 条
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
 

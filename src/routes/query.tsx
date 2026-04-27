@@ -392,16 +392,28 @@ function QueryPage() {
     setConditions((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const runQuery = async () => {
+  const runQuery = async (
+    bannerOverride?: "all" | "in_use" | "processed" | "need_return",
+  ) => {
     if (fields.length === 0) {
       toast.warning("请至少选择一个字段");
       return;
     }
     setRunning(true);
     await new Promise((r) => setTimeout(r, 500));
-    setResults(mockRun(source, fields));
+    let data = mockRun(source, fields);
+    const banner = bannerOverride ?? materialBanner;
+    if (sourceKey === "material" && banner !== "all") {
+      data = data.filter((r) => {
+        if (banner === "in_use") return String(r.asset_status) === "使用中";
+        if (banner === "processed") return String(r.asset_status) === "已处理";
+        if (banner === "need_return") return String(r.need_return) === "是";
+        return true;
+      });
+    }
+    setResults(data);
     setRunning(false);
-    toast.success(`查询完成，共 ${8} 条记录`);
+    toast.success(`查询完成，共 ${data.length} 条记录`);
   };
 
   const persistTemplate = () => {

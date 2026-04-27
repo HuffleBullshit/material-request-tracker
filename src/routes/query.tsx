@@ -563,10 +563,19 @@ function QueryPage() {
                   key={s.label}
                   type="button"
                   onClick={() => {
-                    setMaterialBanner(s.key);
-                    runQuery(s.key);
+                    if (active) {
+                      // 再次点击同一 banner：取消筛选
+                      setMaterialBanner(null);
+                      runQuery(null);
+                      toast.info(`已取消「${s.label}」筛选`);
+                    } else {
+                      setMaterialBanner(s.key);
+                      runQuery(s.key);
+                    }
                   }}
-                  className={`group relative isolate overflow-hidden rounded-2xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl ${s.hoverGlow} active:translate-y-0 active:scale-[0.98] active:shadow-md focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 ${
+                  aria-pressed={active}
+                  title={active ? `点击取消「${s.label}」筛选` : `点击按「${s.label}」筛选`}
+                  className={`group relative isolate overflow-hidden rounded-2xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl ${s.hoverGlow} active:translate-y-0 active:scale-[0.96] active:shadow-md active:duration-75 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 ${
                     active
                       ? `shadow-xl ${s.glowColor} ring-2 ring-white/80 ring-offset-2 ring-offset-white scale-[1.02] -translate-y-0.5`
                       : "shadow-md ring-1 ring-white/20"

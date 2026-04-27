@@ -622,10 +622,10 @@ function QueryPage() {
                       <span
                         className={`h-1.5 w-1.5 rounded-full bg-white ${active ? "animate-pulse" : ""}`}
                       />
-                      {active ? "已筛选" : "点击筛选"}
+                      {active ? "已筛选 · 点击取消" : "点击筛选"}
                     </span>
                     <span className="text-[10px] opacity-70 group-hover:opacity-100 transition-opacity">
-                      →
+                      {active ? "✕" : "→"}
                     </span>
                   </div>
                 </button>

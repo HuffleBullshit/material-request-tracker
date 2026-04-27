@@ -155,40 +155,33 @@ function WarningsPage() {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // 下拉筛选条件（参考通用查询）
-  const [filters, setFilters] = useState<FilterCond[]>([]);
-  const [appliedFilters, setAppliedFilters] = useState<FilterCond[]>([]);
-
-  const addFilter = () => {
-    setFilters((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        field: "product_name",
-        op: "like",
-        value: "",
-      },
-    ]);
-  };
-
-  const updateFilter = (id: string, patch: Partial<FilterCond>) => {
-    setFilters((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-    );
-  };
-
-  const removeFilter = (id: string) => {
-    setFilters((prev) => prev.filter((c) => c.id !== id));
-  };
+  // 搜索/筛选（参考物料管理-我的申请样式）
+  const [keyword, setKeyword] = useState("");
+  const [filterWarningUser, setFilterWarningUser] = useState<string>("all");
+  const [filterCreatedBy, setFilterCreatedBy] = useState<string>("all");
+  const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const [applied, setApplied] = useState({
+    keyword: "",
+    warningUser: "all",
+    createdBy: "all",
+    enabled: "all",
+  });
 
   const applyFilters = () => {
-    setAppliedFilters(filters);
-    toast.success(`已应用 ${filters.length} 个筛选条件`);
+    setApplied({
+      keyword: keyword.trim(),
+      warningUser: filterWarningUser,
+      createdBy: filterCreatedBy,
+      enabled: filterEnabled,
+    });
   };
 
   const resetFilters = () => {
-    setFilters([]);
-    setAppliedFilters([]);
+    setKeyword("");
+    setFilterWarningUser("all");
+    setFilterCreatedBy("all");
+    setFilterEnabled("all");
+    setApplied({ keyword: "", warningUser: "all", createdBy: "all", enabled: "all" });
   };
 
   const openCreate = () => {

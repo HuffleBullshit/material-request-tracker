@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WarningsRouteImport } from './routes/warnings'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QueryRouteImport } from './routes/query'
 import { Route as MaterialRouteImport } from './routes/material'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WarningsRoute = WarningsRouteImport.update({
+  id: '/warnings',
+  path: '/warnings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/material' | '/query' | '/settings'
+  fullPaths: '/' | '/material' | '/query' | '/settings' | '/warnings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/material' | '/query' | '/settings'
-  id: '__root__' | '/' | '/material' | '/query' | '/settings'
+  to: '/' | '/material' | '/query' | '/settings' | '/warnings'
+  id: '__root__' | '/' | '/material' | '/query' | '/settings' | '/warnings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   MaterialRoute: typeof MaterialRoute
   QueryRoute: typeof QueryRoute
   SettingsRoute: typeof SettingsRoute
+  WarningsRoute: typeof WarningsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/warnings': {
+      id: '/warnings'
+      path: '/warnings'
+      fullPath: '/warnings'
+      preLoaderRoute: typeof WarningsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaterialRoute: MaterialRoute,
   QueryRoute: QueryRoute,
   SettingsRoute: SettingsRoute,
+  WarningsRoute: WarningsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

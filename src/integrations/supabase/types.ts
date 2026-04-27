@@ -89,6 +89,48 @@ export type Database = {
         }
         Relationships: []
       }
+      warning_configs: {
+        Row: {
+          created_at: string
+          created_by: string
+          enabled: boolean
+          id: string
+          product_code: string
+          product_name: string | null
+          threshold: number
+          updated_at: string
+          warehouse: string
+          warning_methods: string[]
+          warning_user: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          enabled?: boolean
+          id?: string
+          product_code: string
+          product_name?: string | null
+          threshold?: number
+          updated_at?: string
+          warehouse: string
+          warning_methods?: string[]
+          warning_user: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          enabled?: boolean
+          id?: string
+          product_code?: string
+          product_name?: string | null
+          threshold?: number
+          updated_at?: string
+          warehouse?: string
+          warning_methods?: string[]
+          warning_user?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

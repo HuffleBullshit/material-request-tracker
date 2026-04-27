@@ -80,6 +80,9 @@ const MODULES: ModuleCard[] = [
     iconColor: "text-green-600",
     hoverBorder: "hover:border-green-400",
     hoverRing: "hover:ring-green-200",
+    description: "销售订单管理与库存预警配置",
+    tags: ["预警管理", "阈值配置", "多方式通知"],
+    to: "/warnings",
   },
   {
     key: "finance",

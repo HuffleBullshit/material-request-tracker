@@ -256,23 +256,26 @@ function AssetValueConfigPanel() {
               </button>
             </div>
             <div className="space-y-3">
-              <Field label="产品编号 *">
+              <Field label="配置价 (元) *">
                 <input
-                  value={form.product_code}
-                  onChange={(e) => setForm({ ...form, product_code: e.target.value })}
-                  disabled={!!editing}
-                  placeholder="如 LP-001"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50"
-                />
-              </Field>
-              <Field label="产品名称">
-                <input
-                  value={form.product_name}
-                  onChange={(e) => setForm({ ...form, product_name: e.target.value })}
-                  placeholder="如 联想笔记本电脑"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.config_price}
+                  onChange={(e) => setForm({ ...form, config_price: e.target.value })}
+                  placeholder="100"
                   className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 />
               </Field>
+              <Field label="备注">
+                <textarea
+                  value={form.remark}
+                  onChange={(e) => setForm({ ...form, remark: e.target.value })}
+                  rows={2}
+                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                />
+              </Field>
+              {/* Original config_price + remark below replaced; remove duplicates */}
               <Field label="配置价 (元) *">
                 <input
                   type="number"

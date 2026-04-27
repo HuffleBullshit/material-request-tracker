@@ -173,6 +173,16 @@ function WarningsPage() {
 
   const methodLabel = (m: string) => METHOD_OPTIONS.find((o) => o.value === m)?.label ?? m;
 
+  const filtered = list.filter((r) => {
+    const s = search.trim().toLowerCase();
+    if (s && !r.product_code.toLowerCase().includes(s) && !(r.product_name ?? "").toLowerCase().includes(s)) return false;
+    if (filterUser !== "all" && r.warning_user !== filterUser) return false;
+    if (filterCreator !== "all" && r.created_by !== filterCreator) return false;
+    if (filterEnabled === "on" && !r.enabled) return false;
+    if (filterEnabled === "off" && r.enabled) return false;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="mx-auto max-w-[1400px] px-6 py-8">

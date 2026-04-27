@@ -152,20 +152,18 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
-      enabled: true,
-      created_by: "张总",
     };
-    const { error } = await supabase.from("warning_configs").insert(payload);
-    if (error) return toast.error("保存失败：" + error.message);
-    toast.success("新增成功");
+    if (editingId) {
+      const { error } = await supabase.from("warning_configs").update(payload).eq("id", editingId);
+      if (error) return toast.error("保存失败：" + error.message);
+      toast.success("已更新");
+    } else {
+      const { error } = await supabase.from("warning_configs").insert({ ...payload, enabled: true, created_by: "张总" });
+      if (error) return toast.error("保存失败：" + error.message);
+      toast.success("新增成功");
+    }
     setOpen(false);
-    setForm({
-      product_code: "",
-      warning_user: USERS[0],
-      warning_methods: ["email", "robot"],
-      threshold: "10",
-      warehouse: WAREHOUSES[0],
-    });
+    setEditingId(null);
     load();
   };
 

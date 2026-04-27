@@ -314,10 +314,11 @@ function QueryPage() {
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
   // 字段选择面板：所有模块默认收起
   const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(true);
-  // 物料 Banner 快速筛选：all / in_use / processed / need_return
-  const [materialBanner, setMaterialBanner] = useState<
-    "all" | "in_use" | "processed" | "need_return"
-  >("all");
+  // 物料 Banner 快速筛选：null 表示未筛选（默认）
+  type MaterialBannerKey = "all" | "in_use" | "processed" | "need_return";
+  const [materialBanner, setMaterialBanner] = useState<MaterialBannerKey | null>(
+    null,
+  );
 
   // 模板
   const [tplOpen, setTplOpen] = useState(false);
@@ -343,7 +344,7 @@ function QueryPage() {
     setResults(null);
     // 切换数据源时统一收起字段面板
     setFieldsCollapsed(true);
-    setMaterialBanner("all");
+    setMaterialBanner(null);
   };
 
   const toggleField = (k: string) => {
@@ -394,7 +395,7 @@ function QueryPage() {
   };
 
   const runQuery = async (
-    bannerOverride?: "all" | "in_use" | "processed" | "need_return",
+    bannerOverride?: MaterialBannerKey | null,
   ) => {
     if (fields.length === 0) {
       toast.warning("请至少选择一个字段");
@@ -403,8 +404,9 @@ function QueryPage() {
     setRunning(true);
     await new Promise((r) => setTimeout(r, 500));
     let data = mockRun(source, fields);
-    const banner = bannerOverride ?? materialBanner;
-    if (sourceKey === "material" && banner !== "all") {
+    const banner =
+      bannerOverride !== undefined ? bannerOverride : materialBanner;
+    if (sourceKey === "material" && banner && banner !== "all") {
       data = data.filter((r) => {
         if (banner === "in_use") return String(r.asset_status) === "使用中";
         if (banner === "processed") return String(r.asset_status) === "已处理";
@@ -561,10 +563,19 @@ function QueryPage() {
                   key={s.label}
                   type="button"
                   onClick={() => {
-                    setMaterialBanner(s.key);
-                    runQuery(s.key);
+                    if (active) {
+                      // 再次点击同一 banner：取消筛选
+                      setMaterialBanner(null);
+                      runQuery(null);
+                      toast.info(`已取消「${s.label}」筛选`);
+                    } else {
+                      setMaterialBanner(s.key);
+                      runQuery(s.key);
+                    }
                   }}
-                  className={`group relative isolate overflow-hidden rounded-2xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl ${s.hoverGlow} active:translate-y-0 active:scale-[0.98] active:shadow-md focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 ${
+                  aria-pressed={active}
+                  title={active ? `点击取消「${s.label}」筛选` : `点击按「${s.label}」筛选`}
+                  className={`group relative isolate overflow-hidden rounded-2xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl ${s.hoverGlow} active:translate-y-0 active:scale-[0.96] active:shadow-md active:duration-75 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 ${
                     active
                       ? `shadow-xl ${s.glowColor} ring-2 ring-white/80 ring-offset-2 ring-offset-white scale-[1.02] -translate-y-0.5`
                       : "shadow-md ring-1 ring-white/20"
@@ -611,10 +622,10 @@ function QueryPage() {
                       <span
                         className={`h-1.5 w-1.5 rounded-full bg-white ${active ? "animate-pulse" : ""}`}
                       />
-                      {active ? "已筛选" : "点击筛选"}
+                      {active ? "已筛选 · 点击取消" : "点击筛选"}
                     </span>
                     <span className="text-[10px] opacity-70 group-hover:opacity-100 transition-opacity">
-                      →
+                      {active ? "✕" : "→"}
                     </span>
                   </div>
                 </button>

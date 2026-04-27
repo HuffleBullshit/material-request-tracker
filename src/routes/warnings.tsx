@@ -224,43 +224,54 @@ function WarningsPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="搜索产品名称 / 产品编号"
-                className="pl-9"
-              />
+        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+          {/* 搜索行 */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="搜索产品名称 / 产品编号"
+              className="pl-9"
+            />
+          </div>
+          {/* 筛选行 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">预警人</Label>
+              <Select value={filterUser} onValueChange={setFilterUser}>
+                <SelectTrigger><SelectValue placeholder="全部预警人" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部预警人</SelectItem>
+                  {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={filterUser} onValueChange={setFilterUser}>
-              <SelectTrigger><SelectValue placeholder="预警人" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部预警人</SelectItem>
-                {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
-                  <SelectItem key={u} value={u}>{u}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterCreator} onValueChange={setFilterCreator}>
-              <SelectTrigger><SelectValue placeholder="设置人" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部设置人</SelectItem>
-                {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
-                  <SelectItem key={u} value={u}>{u}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterEnabled} onValueChange={setFilterEnabled}>
-              <SelectTrigger><SelectValue placeholder="预警开关" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
-                <SelectItem value="on">已启用</SelectItem>
-                <SelectItem value="off">已停用</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">设置人</Label>
+              <Select value={filterCreator} onValueChange={setFilterCreator}>
+                <SelectTrigger><SelectValue placeholder="全部设置人" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部设置人</SelectItem>
+                  {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">预警开关</Label>
+              <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+                <SelectTrigger><SelectValue placeholder="全部状态" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value="on">已启用</SelectItem>
+                  <SelectItem value="off">已停用</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 

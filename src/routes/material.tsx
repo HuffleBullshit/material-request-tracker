@@ -600,27 +600,41 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
 
   const statusMeta: Record<
     AssetStatus,
-    { count: number; cardCls: string; labelCls: string; valueCls: string; badgeCls: string }
+    {
+      count: number;
+      icon: typeof Package;
+      from: string;
+      to: string;
+      bar: string;
+      ring: string;
+      badgeCls: string;
+    }
   > = {
     使用中: {
       count: inUseCount,
-      cardCls: "border-2 border-emerald-200 bg-emerald-50/50",
-      labelCls: "text-emerald-700",
-      valueCls: "text-emerald-700",
+      icon: CheckCircle2,
+      from: "from-emerald-500",
+      to: "to-teal-600",
+      bar: "bg-emerald-500",
+      ring: "ring-emerald-400",
       badgeCls: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0",
     },
     需归还: {
       count: needReturnCount,
-      cardCls: "border-2 border-orange-200 bg-orange-50/50",
-      labelCls: "text-orange-700",
-      valueCls: "text-orange-700",
+      icon: RotateCcw,
+      from: "from-orange-500",
+      to: "to-amber-500",
+      bar: "bg-orange-500",
+      ring: "ring-orange-400",
       badgeCls: "bg-orange-100 text-orange-700 hover:bg-orange-100 border-0",
     },
     已处理: {
       count: processedCount,
-      cardCls: "border bg-slate-50",
-      labelCls: "text-slate-600",
-      valueCls: "text-slate-700",
+      icon: Package,
+      from: "from-slate-500",
+      to: "to-slate-600",
+      bar: "bg-slate-500",
+      ring: "ring-slate-400",
       badgeCls: "bg-slate-100 text-slate-600 hover:bg-slate-100 border-0",
     },
   };
@@ -632,31 +646,44 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
       <div className="grid grid-cols-3 gap-3">
         {statusList.map((s) => {
           const m = statusMeta[s];
+          const Icon = m.icon;
+          const active = statusFilter === s;
           return (
-            <div key={s} className={`rounded-lg p-4 ${m.cardCls}`}>
-              <div className={`text-xs ${m.labelCls} inline-flex items-center gap-1`}>
-                {s === "需归还" && <RotateCcw className="h-3 w-3" />}
-                {s}
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              aria-pressed={active}
+              className={`group relative overflow-hidden rounded-xl bg-white border text-left p-4 transition-all duration-200
+                ${active
+                  ? `shadow-lg -translate-y-0.5 ring-2 ring-offset-1 ${m.ring} border-transparent`
+                  : "shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300"}`}
+            >
+              <span
+                className={`absolute left-0 top-0 h-full ${active ? "w-1.5" : "w-1"} ${m.bar} transition-all`}
+                aria-hidden
+              />
+              {active && (
+                <span
+                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${m.from} ${m.to} opacity-[0.06]`}
+                  aria-hidden
+                />
+              )}
+              <div className="relative flex items-start justify-between">
+                <div>
+                  <p className={`text-xs ${active ? "text-slate-700 font-medium" : "text-slate-500"}`}>{s}</p>
+                  <p className="mt-1.5 text-2xl font-bold text-slate-900 tabular-nums">{m.count}</p>
+                </div>
+                <div
+                  className={`flex items-center justify-center rounded-lg bg-gradient-to-br ${m.from} ${m.to} text-white shadow-sm transition-all
+                    ${active ? "h-10 w-10 shadow-md scale-105" : "h-9 w-9 group-hover:scale-105"}`}
+                >
+                  <Icon className={active ? "h-5 w-5" : "h-4 w-4"} />
+                </div>
               </div>
-              <div className={`mt-1 text-2xl font-bold tabular-nums ${m.valueCls}`}>
-                {m.count}
-              </div>
-            </div>
+            </button>
           );
         })}
-      </div>
-
-      <div className="flex gap-2">
-        {statusList.map((s) => (
-          <Button
-            key={s}
-            size="sm"
-            variant={statusFilter === s ? "default" : "outline"}
-            onClick={() => setStatusFilter(s)}
-          >
-            {s}
-          </Button>
-        ))}
       </div>
 
       <div className="space-y-3">

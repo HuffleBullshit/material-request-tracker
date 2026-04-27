@@ -157,6 +157,7 @@ const MODULES: ModuleCard[] = [
     hoverRing: "hover:ring-slate-300",
     description: "用户权限、系统配置",
     tags: ["库存管理配置", "交付预警配置", "资产价值配置"],
+    to: "/settings",
   },
 ];
 

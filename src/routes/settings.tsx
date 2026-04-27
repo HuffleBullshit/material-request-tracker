@@ -275,26 +275,6 @@ function AssetValueConfigPanel() {
                   className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 />
               </Field>
-              {/* Original config_price + remark below replaced; remove duplicates */}
-              <Field label="配置价 (元) *">
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.config_price}
-                  onChange={(e) => setForm({ ...form, config_price: e.target.value })}
-                  placeholder="0.00"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                />
-              </Field>
-              <Field label="备注">
-                <textarea
-                  value={form.remark}
-                  onChange={(e) => setForm({ ...form, remark: e.target.value })}
-                  rows={2}
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                />
-              </Field>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button

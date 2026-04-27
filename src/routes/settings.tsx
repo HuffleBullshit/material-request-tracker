@@ -20,6 +20,7 @@ interface AssetConfig {
   product_name: string | null;
   config_price: number;
   remark: string | null;
+  enabled: boolean;
   updated_at: string;
 }
 
@@ -95,7 +96,7 @@ function AssetValueConfigPanel() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AssetConfig | null>(null);
-  const [form, setForm] = useState({ product_code: "", product_name: "", config_price: "", remark: "" });
+  const [form, setForm] = useState({ config_price: "100", remark: "" });
 
   const load = async () => {
     setLoading(true);
@@ -118,36 +119,45 @@ function AssetValueConfigPanel() {
   const openEdit = (it: AssetConfig | null) => {
     setEditing(it);
     setForm({
-      product_code: it?.product_code ?? "GLOBAL",
-      product_name: it?.product_name ?? "全局资产配置价",
-      config_price: it ? String(it.config_price) : "",
+      config_price: it ? String(it.config_price) : "100",
       remark: it?.remark ?? "",
     });
     setShowForm(true);
   };
 
   const submit = async () => {
-    if (!form.product_code.trim()) return toast.error("请输入产品编号");
     const price = Number(form.config_price);
     if (isNaN(price) || price < 0) return toast.error("配置价必须为非负数字");
 
-    const payload = {
-      product_code: form.product_code.trim(),
-      product_name: form.product_name.trim() || null,
-      config_price: price,
-      remark: form.remark.trim() || null,
-    };
-
     if (editing) {
-      const { error } = await supabase.from("asset_value_configs").update(payload).eq("id", editing.id);
+      const { error } = await supabase
+        .from("asset_value_configs")
+        .update({ config_price: price, remark: form.remark.trim() || null })
+        .eq("id", editing.id);
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("已更新");
     } else {
-      const { error } = await supabase.from("asset_value_configs").insert(payload);
+      const { error } = await supabase.from("asset_value_configs").insert({
+        product_code: "GLOBAL",
+        product_name: "全局资产配置价",
+        config_price: price,
+        remark: form.remark.trim() || null,
+        enabled: true,
+      });
       if (error) return toast.error("新增失败：" + error.message);
       toast.success("已新增");
     }
     setShowForm(false);
+    load();
+  };
+
+  const toggleEnabled = async (it: AssetConfig) => {
+    const { error } = await supabase
+      .from("asset_value_configs")
+      .update({ enabled: !it.enabled })
+      .eq("id", it.id);
+    if (error) return toast.error("操作失败：" + error.message);
+    toast.success(!it.enabled ? "已启用" : "已停用");
     load();
   };
 
@@ -171,6 +181,7 @@ function AssetValueConfigPanel() {
             <tr>
               <th className="px-4 py-3 text-right font-medium">配置价 (元)</th>
               <th className="px-4 py-3 text-left font-medium">备注</th>
+              <th className="px-4 py-3 text-center font-medium">状态</th>
               <th className="px-4 py-3 text-left font-medium">更新时间</th>
               <th className="px-4 py-3 text-right font-medium">操作</th>
             </tr>
@@ -178,11 +189,11 @@ function AssetValueConfigPanel() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">加载中…</td>
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-400">加载中…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center">
+                <td colSpan={5} className="px-4 py-8 text-center">
                   <button onClick={() => openEdit(null)} className="text-indigo-600 hover:underline">
                     暂无配置，点击此处新增
                   </button>
@@ -195,6 +206,24 @@ function AssetValueConfigPanel() {
                   <tr key={it.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 text-right font-semibold text-indigo-700">¥ {Number(it.config_price).toLocaleString()}</td>
                     <td className="px-4 py-3 text-slate-500">{it.remark || "—"}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => toggleEnabled(it)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          it.enabled ? "bg-emerald-500" : "bg-slate-300"
+                        }`}
+                        title={it.enabled ? "点击停用" : "点击启用"}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                            it.enabled ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                      <div className={`mt-1 text-xs ${it.enabled ? "text-emerald-600" : "text-slate-400"}`}>
+                        {it.enabled ? "已启用" : "已停用"}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-xs text-slate-400">{new Date(it.updated_at).toLocaleString("zh-CN")}</td>
                     <td className="px-4 py-3 text-right">
                       <button
@@ -227,23 +256,6 @@ function AssetValueConfigPanel() {
               </button>
             </div>
             <div className="space-y-3">
-              <Field label="产品编号 *">
-                <input
-                  value={form.product_code}
-                  onChange={(e) => setForm({ ...form, product_code: e.target.value })}
-                  disabled={!!editing}
-                  placeholder="如 LP-001"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50"
-                />
-              </Field>
-              <Field label="产品名称">
-                <input
-                  value={form.product_name}
-                  onChange={(e) => setForm({ ...form, product_name: e.target.value })}
-                  placeholder="如 联想笔记本电脑"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                />
-              </Field>
               <Field label="配置价 (元) *">
                 <input
                   type="number"
@@ -251,7 +263,7 @@ function AssetValueConfigPanel() {
                   step="0.01"
                   value={form.config_price}
                   onChange={(e) => setForm({ ...form, config_price: e.target.value })}
-                  placeholder="0.00"
+                  placeholder="100"
                   className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 />
               </Field>

@@ -316,7 +316,8 @@ function MyRequests() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filtered = useMemo(() => {
+  // 先按搜索/筛选/日期等过滤（不含 banner 状态），用于计算各状态总数
+  const baseFiltered = useMemo(() => {
     const k = keyword.trim().toLowerCase();
     let list = rows;
     if (k) {
@@ -327,31 +328,43 @@ function MyRequests() {
           r.approval_no.toLowerCase().includes(k),
       );
     }
-    if (approvalStatus !== "all") {
-      list = list.filter((r) => deriveApproval(r.id) === approvalStatus);
-    }
     return list;
-  }, [rows, keyword, approvalStatus]);
+  }, [rows, keyword]);
+
+  // 再按审批状态筛选（来自下拉或 banner 点击）
+  const filtered = useMemo(() => {
+    if (approvalStatus === "all") return baseFiltered;
+    return baseFiltered.filter((r) => deriveApproval(r.id) === approvalStatus);
+  }, [baseFiltered, approvalStatus]);
 
   const stats = useMemo(() => {
-    const total = filtered.length;
+    const total = baseFiltered.length;
     let approved = 0;
     let pending = 0;
     let rejected = 0;
-    filtered.forEach((r) => {
+    baseFiltered.forEach((r) => {
       const s = deriveApproval(r.id);
       if (s === "approved") approved += 1;
       else if (s === "pending") pending += 1;
       else rejected += 1;
     });
     return { total, approved, pending, rejected };
-  }, [filtered]);
+  }, [baseFiltered]);
 
-  const statCards = [
-    { label: "申请总数", value: stats.total, icon: Package, from: "from-blue-500", to: "to-indigo-600", bar: "bg-blue-500" },
-    { label: "已通过", value: stats.approved, icon: CheckCircle2, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500" },
-    { label: "审批中", value: stats.pending, icon: Clock, from: "from-amber-500", to: "to-orange-500", bar: "bg-amber-500" },
-    { label: "已拒绝", value: stats.rejected, icon: XCircle, from: "from-rose-500", to: "to-pink-600", bar: "bg-rose-500" },
+  const statCards: {
+    key: string;
+    label: string;
+    value: number;
+    icon: typeof Package;
+    from: string;
+    to: string;
+    bar: string;
+    ring: string;
+  }[] = [
+    { key: "all", label: "申请总数", value: stats.total, icon: Package, from: "from-blue-500", to: "to-indigo-600", bar: "bg-blue-500", ring: "ring-blue-400" },
+    { key: "approved", label: "已通过", value: stats.approved, icon: CheckCircle2, from: "from-emerald-500", to: "to-teal-600", bar: "bg-emerald-500", ring: "ring-emerald-400" },
+    { key: "pending", label: "审批中", value: stats.pending, icon: Clock, from: "from-amber-500", to: "to-orange-500", bar: "bg-amber-500", ring: "ring-amber-400" },
+    { key: "rejected", label: "已拒绝", value: stats.rejected, icon: XCircle, from: "from-rose-500", to: "to-pink-600", bar: "bg-rose-500", ring: "ring-rose-400" },
   ];
 
   return (

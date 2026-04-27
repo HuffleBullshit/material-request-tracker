@@ -191,6 +191,55 @@ function WarningsPage() {
           </Button>
         </div>
 
+        {/* Stats Banner */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <StatCard icon={Package} label="预警配置总数" value={list.length} color="bg-blue-100 text-blue-600" />
+          <StatCard icon={ToggleRight} label="已启用" value={list.filter((r) => r.enabled).length} color="bg-emerald-100 text-emerald-600" />
+          <StatCard icon={AlertTriangle} label="已停用" value={list.filter((r) => !r.enabled).length} color="bg-amber-100 text-amber-600" />
+          <StatCard icon={UsersIcon} label="涉及预警人" value={new Set(list.map((r) => r.warning_user)).size} color="bg-purple-100 text-purple-600" />
+        </div>
+
+        {/* Search & Filters */}
+        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="搜索产品名称 / 产品编号"
+                className="pl-9"
+              />
+            </div>
+            <Select value={filterUser} onValueChange={setFilterUser}>
+              <SelectTrigger><SelectValue placeholder="预警人" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部预警人</SelectItem>
+                {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterCreator} onValueChange={setFilterCreator}>
+              <SelectTrigger><SelectValue placeholder="设置人" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部设置人</SelectItem>
+                {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+              <SelectTrigger><SelectValue placeholder="预警开关" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="on">已启用</SelectItem>
+                <SelectItem value="off">已停用</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <Table>
             <TableHeader>

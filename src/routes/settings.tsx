@@ -96,7 +96,7 @@ function AssetValueConfigPanel() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AssetConfig | null>(null);
-  const [form, setForm] = useState({ product_code: "", product_name: "", config_price: "", remark: "" });
+  const [form, setForm] = useState({ config_price: "100", remark: "" });
 
   const load = async () => {
     setLoading(true);

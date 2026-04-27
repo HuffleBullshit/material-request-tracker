@@ -439,22 +439,34 @@ function WarningsPage() {
                 />
               </div>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-1 relative">
-                    <Filter className="h-4 w-4" /> 筛选
-                    {activeFilterCount > 0 && (
-                      <Badge className="ml-1 h-5 min-w-5 px-1.5 bg-blue-600 hover:bg-blue-600 text-white">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-80 p-4 space-y-3">
+              <Button
+                variant="outline"
+                className="gap-1 relative"
+                onClick={() => setShowFilters((v) => !v)}
+              >
+                <Filter className="h-4 w-4" /> 筛选
+                {activeFilterCount > 0 && (
+                  <Badge className="ml-1 h-5 min-w-5 px-1.5 bg-blue-600 hover:bg-blue-600 text-white">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
+
+              <Button onClick={applyFilters} className="gap-1 bg-blue-600 hover:bg-blue-700 text-white">
+                <Play className="h-4 w-4" /> 查询
+              </Button>
+              <Button variant="outline" onClick={resetFilters} className="gap-1">
+                <RotateCcw className="h-4 w-4" /> 重置
+              </Button>
+            </div>
+
+            {showFilters && (
+              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <div className="space-y-1.5">
                     <Label>预警人</Label>
                     <Select value={filterWarningUser} onValueChange={setFilterWarningUser}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -470,7 +482,7 @@ function WarningsPage() {
                   <div className="space-y-1.5">
                     <Label>设置人</Label>
                     <Select value={filterCreatedBy} onValueChange={setFilterCreatedBy}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -486,7 +498,7 @@ function WarningsPage() {
                   <div className="space-y-1.5">
                     <Label>预警开关</Label>
                     <Select value={filterEnabled} onValueChange={setFilterEnabled}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -496,16 +508,27 @@ function WarningsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                </PopoverContent>
-              </Popover>
-
-              <Button onClick={applyFilters} className="gap-1 bg-blue-600 hover:bg-blue-700 text-white">
-                <Play className="h-4 w-4" /> 查询
-              </Button>
-              <Button variant="outline" onClick={resetFilters} className="gap-1">
-                <RotateCcw className="h-4 w-4" /> 重置
-              </Button>
-            </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={resetFilters} className="gap-1">
+                    <RotateCcw className="h-3.5 w-3.5" /> 清空
+                  </Button>
+                  <Button size="sm" onClick={saveFilters} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                    保存筛选
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      applyFilters();
+                      setShowFilters(false);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    应用
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

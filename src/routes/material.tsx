@@ -373,22 +373,33 @@ function MyRequests() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {statCards.map((s) => {
           const Icon = s.icon;
+          const active = approvalStatus === s.key;
           return (
-            <div
+            <button
               key={s.label}
-              className="relative overflow-hidden rounded-xl bg-white border shadow-sm hover:shadow-md transition-shadow p-4"
+              type="button"
+              onClick={() => setApprovalStatus(s.key)}
+              aria-pressed={active}
+              className={`group relative overflow-hidden rounded-xl bg-white border text-left p-4 transition-all duration-200
+                ${active
+                  ? `shadow-lg -translate-y-0.5 ring-2 ring-offset-1 ${s.ring} border-transparent`
+                  : "shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300"}`}
             >
-              <span className={`absolute left-0 top-0 h-full w-1 ${s.bar}`} aria-hidden />
-              <div className="flex items-start justify-between">
+              <span className={`absolute left-0 top-0 h-full ${active ? "w-1.5" : "w-1"} ${s.bar} transition-all`} aria-hidden />
+              {active && (
+                <span className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${s.from} ${s.to} opacity-[0.06]`} aria-hidden />
+              )}
+              <div className="relative flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-slate-500">{s.label}</p>
+                  <p className={`text-xs ${active ? "text-slate-700 font-medium" : "text-slate-500"}`}>{s.label}</p>
                   <p className="mt-1.5 text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
                 </div>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${s.from} ${s.to} text-white shadow-sm`}>
-                  <Icon className="h-4 w-4" />
+                <div className={`flex items-center justify-center rounded-lg bg-gradient-to-br ${s.from} ${s.to} text-white shadow-sm transition-all
+                  ${active ? "h-10 w-10 shadow-md scale-105" : "h-9 w-9 group-hover:scale-105"}`}>
+                  <Icon className={active ? "h-5 w-5" : "h-4 w-4"} />
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

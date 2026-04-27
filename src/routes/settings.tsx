@@ -20,6 +20,7 @@ interface AssetConfig {
   product_name: string | null;
   config_price: number;
   remark: string | null;
+  enabled: boolean;
   updated_at: string;
 }
 

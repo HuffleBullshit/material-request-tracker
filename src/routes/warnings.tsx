@@ -83,6 +83,10 @@ function WarningsPage() {
     threshold: "10",
     warehouse: WAREHOUSES[0],
   });
+  const [search, setSearch] = useState("");
+  const [filterUser, setFilterUser] = useState<string>("all");
+  const [filterCreator, setFilterCreator] = useState<string>("all");
+  const [filterEnabled, setFilterEnabled] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);

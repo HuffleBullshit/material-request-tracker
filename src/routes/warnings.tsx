@@ -233,7 +233,7 @@ function WarningsPage() {
             </h1>
             <p className="mt-1 text-sm text-slate-500">销售订单与合同 · 库存预警配置</p>
           </div>
-          <Button onClick={() => setOpen(true)} className="gap-2">
+          <Button onClick={openCreate} className="gap-2">
             <Plus className="h-4 w-4" /> 新增预警
           </Button>
         </div>

@@ -115,19 +115,13 @@ function AssetValueConfigPanel() {
     load();
   }, []);
 
-  const openCreate = () => {
-    setEditing(null);
-    setForm({ product_code: "", product_name: "", config_price: "", remark: "" });
-    setShowForm(true);
-  };
-
-  const openEdit = (it: AssetConfig) => {
+  const openEdit = (it: AssetConfig | null) => {
     setEditing(it);
     setForm({
-      product_code: it.product_code,
-      product_name: it.product_name ?? "",
-      config_price: String(it.config_price),
-      remark: it.remark ?? "",
+      product_code: it?.product_code ?? "GLOBAL",
+      product_name: it?.product_name ?? "全局资产配置价",
+      config_price: it ? String(it.config_price) : "",
+      remark: it?.remark ?? "",
     });
     setShowForm(true);
   };
@@ -157,20 +151,7 @@ function AssetValueConfigPanel() {
     load();
   };
 
-  const remove = async (it: AssetConfig) => {
-    if (!confirm(`确认删除产品编号 ${it.product_code} 的配置？`)) return;
-    const { error } = await supabase.from("asset_value_configs").delete().eq("id", it.id);
-    if (error) return toast.error("删除失败：" + error.message);
-    toast.success("已删除");
-    load();
-  };
-
-  const filtered = items.filter(
-    (i) =>
-      !search ||
-      i.product_code.toLowerCase().includes(search.toLowerCase()) ||
-      (i.product_name ?? "").toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = items;
 
   return (
     <div className="space-y-4">

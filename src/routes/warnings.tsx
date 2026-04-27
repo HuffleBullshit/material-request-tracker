@@ -46,9 +46,10 @@ import {
   Filter,
   Search,
 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+
+const FILTER_STORAGE_KEY = "warnings:savedFilters";
 
 export const Route = createFileRoute("/warnings")({
   head: () => ({

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           config_price: number
           created_at: string
+          enabled: boolean
           id: string
           product_code: string
           product_name: string | null
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           config_price?: number
           created_at?: string
+          enabled?: boolean
           id?: string
           product_code: string
           product_name?: string | null
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           config_price?: number
           created_at?: string
+          enabled?: boolean
           id?: string
           product_code?: string
           product_name?: string | null

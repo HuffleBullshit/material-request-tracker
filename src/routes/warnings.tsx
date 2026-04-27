@@ -380,3 +380,17 @@ function WarningsPage() {
     </div>
   );
 }
+
+function StatCard({ icon: Icon, label, value, color }: { icon: typeof Bell; label: string; value: number; color: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center gap-3">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${color}`}>
+        <Icon className="h-6 w-6" />
+      </div>
+      <div>
+        <div className="text-2xl font-bold text-slate-900">{value}</div>
+        <div className="text-xs text-slate-500">{label}</div>
+      </div>
+    </div>
+  );
+}

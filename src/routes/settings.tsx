@@ -225,17 +225,15 @@ function AssetValueConfigPanel() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">加载中…</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">加载中…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">暂无数据</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">暂无数据</td>
               </tr>
             ) : (
               filtered.map((it) => (
                 <tr key={it.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-mono text-slate-900">{it.product_code}</td>
-                  <td className="px-4 py-3 text-slate-700">{it.product_name || "—"}</td>
                   <td className="px-4 py-3 text-right font-semibold text-indigo-700">¥ {Number(it.config_price).toLocaleString()}</td>
                   <td className="px-4 py-3 text-slate-500">{it.remark || "—"}</td>
                   <td className="px-4 py-3 text-xs text-slate-400">{new Date(it.updated_at).toLocaleString("zh-CN")}</td>

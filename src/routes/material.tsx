@@ -750,6 +750,12 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                       <span className="italic">设备识别码:</span>{" "}
                       <span className="font-mono">{a.deviceId}</span>
                     </div>
+                    <div>
+                      <span className="italic">申请时间:</span>{" "}
+                      <span className="font-mono">
+                        {new Date(a.request_time).toLocaleDateString("zh-CN")}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <Badge className={`${m.badgeCls} gap-1`}>
@@ -758,8 +764,15 @@ function MyAssets({ onAction }: { onAction: (flow: SelfFlow) => void }) {
                 </Badge>
               </div>
 
+              <div className="mt-3 pt-3 border-t border-dashed flex justify-end">
+                <button className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                  <Eye className="h-3.5 w-3.5" />
+                  查看审批
+                </button>
+              </div>
+
               {a.status === "需归还" && (
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-3 grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-700"

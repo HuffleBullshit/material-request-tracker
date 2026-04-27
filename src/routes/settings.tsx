@@ -184,34 +184,7 @@ function AssetValueConfigPanel() {
         <strong>【是否需要归还】</strong> 自动记录为 <strong>是</strong>，否则为 <strong>否</strong>。
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-        <div className="relative flex-1 min-w-[240px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜索产品编号 / 产品名称"
-            className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={load}
-            className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-          >
-            <RefreshCw className="h-4 w-4" /> 刷新
-          </button>
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 shadow-sm"
-          >
-            <Plus className="h-4 w-4" /> 新增配置
-          </button>
-        </div>
-      </div>
-
-      {/* Table */}
+      {/* Table — single global config row */}
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
@@ -229,16 +202,17 @@ function AssetValueConfigPanel() {
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">暂无数据</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">暂无配置，点击编辑新增</td>
               </tr>
             ) : (
-              filtered.map((it) => (
-                <tr key={it.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-right font-semibold text-indigo-700">¥ {Number(it.config_price).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-slate-500">{it.remark || "—"}</td>
-                  <td className="px-4 py-3 text-xs text-slate-400">{new Date(it.updated_at).toLocaleString("zh-CN")}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex gap-1">
+              (() => {
+                const it = filtered[0];
+                return (
+                  <tr key={it.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 text-right font-semibold text-indigo-700">¥ {Number(it.config_price).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-slate-500">{it.remark || "—"}</td>
+                    <td className="px-4 py-3 text-xs text-slate-400">{new Date(it.updated_at).toLocaleString("zh-CN")}</td>
+                    <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => openEdit(it)}
                         className="rounded p-1.5 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
@@ -246,17 +220,10 @@ function AssetValueConfigPanel() {
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => remove(it)}
-                        className="rounded p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600"
-                        title="删除"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                  </tr>
+                );
+              })()
             )}
           </tbody>
         </table>

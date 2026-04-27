@@ -101,6 +101,31 @@ function WarningsPage() {
   const [filterUser, setFilterUser] = useState<string>("all");
   const [filterCreator, setFilterCreator] = useState<string>("all");
   const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({
+      product_code: "",
+      warning_user: USERS[0],
+      warning_methods: ["email", "robot"],
+      threshold: "10",
+      warehouse: WAREHOUSES[0],
+    });
+    setOpen(true);
+  };
+
+  const openEdit = (row: WarningConfig) => {
+    setEditingId(row.id);
+    setForm({
+      product_code: row.product_code,
+      warning_user: row.warning_user,
+      warning_methods: row.warning_methods,
+      threshold: String(row.threshold),
+      warehouse: row.warehouse,
+    });
+    setOpen(true);
+  };
 
   const load = async () => {
     setLoading(true);

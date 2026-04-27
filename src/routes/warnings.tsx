@@ -142,6 +142,7 @@ function WarningsPage() {
   const [filterWarningUser, setFilterWarningUser] = useState<string>("all");
   const [filterCreatedBy, setFilterCreatedBy] = useState<string>("all");
   const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const activeFilterCount =
     (filterWarningUser !== "all" ? 1 : 0) +
     (filterCreatedBy !== "all" ? 1 : 0) +
@@ -154,13 +155,62 @@ function WarningsPage() {
     enabled: "all",
   });
 
+  // 加载已保存的筛选条件
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as {
+        keyword?: string;
+        warningUser?: string;
+        createdBy?: string;
+        enabled?: string;
+      };
+      setKeyword(saved.keyword ?? "");
+      setFilterWarningUser(saved.warningUser ?? "all");
+      setFilterCreatedBy(saved.createdBy ?? "all");
+      setFilterEnabled(saved.enabled ?? "all");
+      setApplied({
+        keyword: saved.keyword ?? "",
+        warningUser: saved.warningUser ?? "all",
+        createdBy: saved.createdBy ?? "all",
+        enabled: saved.enabled ?? "all",
+      });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const applyFilters = () => {
-    setApplied({
+    const next = {
       keyword: keyword.trim(),
       warningUser: filterWarningUser,
       createdBy: filterCreatedBy,
       enabled: filterEnabled,
-    });
+    };
+    setApplied(next);
+    try {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const saveFilters = () => {
+    try {
+      localStorage.setItem(
+        FILTER_STORAGE_KEY,
+        JSON.stringify({
+          keyword: keyword.trim(),
+          warningUser: filterWarningUser,
+          createdBy: filterCreatedBy,
+          enabled: filterEnabled,
+        }),
+      );
+      toast.success("筛选条件已保存");
+    } catch {
+      toast.error("保存失败");
+    }
   };
 
   const resetFilters = () => {
@@ -169,6 +219,11 @@ function WarningsPage() {
     setFilterCreatedBy("all");
     setFilterEnabled("all");
     setApplied({ keyword: "", warningUser: "all", createdBy: "all", enabled: "all" });
+    try {
+      localStorage.removeItem(FILTER_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
   };
 
   const openCreate = () => {

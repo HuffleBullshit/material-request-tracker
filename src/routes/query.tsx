@@ -408,7 +408,8 @@ function QueryPage() {
       data = data.filter((r) => {
         if (banner === "in_use") return String(r.asset_status) === "使用中";
         if (banner === "processed") return String(r.asset_status) === "已处理";
-        if (banner === "need_return") return String(r.need_return) === "是";
+        if (banner === "need_return")
+          return String(r.asset_status) === "使用中" && String(r.need_return) === "是";
         return true;
       });
     }

@@ -54,7 +54,7 @@ const FILTER_STORAGE_KEY = "warnings:savedFilters";
 export const Route = createFileRoute("/warnings")({
   head: () => ({
     meta: [
-      { title: "预警管理 — 销售订单与合同" },
+      { title: "库存预警管理 — 销售订单与合同" },
       {
         name: "description",
         content:
@@ -380,18 +380,12 @@ function WarningsPage() {
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 shadow-md">
                 <Bell className="h-6 w-6 text-white" />
               </span>
-              预警管理
+              库存预警管理
             </h1>
             <p className="mt-1 text-sm text-slate-500">
               销售订单与合同 · 库存预警配置中心
             </p>
           </div>
-          <Button
-            onClick={openCreate}
-            className="gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-md"
-          >
-            <Plus className="h-4 w-4" /> 新增预警
-          </Button>
         </div>
 
         {/* Stats Banner */}
@@ -516,16 +510,6 @@ function WarningsPage() {
                   <Button size="sm" onClick={saveFilters} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                     保存筛选
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      applyFilters();
-                      setShowFilters(false);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    应用
-                  </Button>
                 </div>
               </div>
             )}
@@ -542,6 +526,13 @@ function WarningsPage() {
                 （共 {filtered.length} 条）
               </span>
             </CardTitle>
+            <Button
+              onClick={openCreate}
+              size="sm"
+              className="gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-md"
+            >
+              <Plus className="h-4 w-4" /> 新增预警
+            </Button>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -555,7 +546,7 @@ function WarningsPage() {
                   <TableHead>预警仓库</TableHead>
                   <TableHead>预警开关</TableHead>
                   <TableHead>设置人</TableHead>
-                  <TableHead className="text-right">操作</TableHead>
+                  <TableHead className="text-left">操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -623,7 +614,7 @@ function WarningsPage() {
                         />
                       </TableCell>
                       <TableCell className="text-slate-600">{row.created_by}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-left">
                         <div className="inline-flex gap-1">
                           <Button
                             size="sm"

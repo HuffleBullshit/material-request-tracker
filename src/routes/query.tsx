@@ -408,7 +408,8 @@ function QueryPage() {
       data = data.filter((r) => {
         if (banner === "in_use") return String(r.asset_status) === "使用中";
         if (banner === "processed") return String(r.asset_status) === "已处理";
-        if (banner === "need_return") return String(r.need_return) === "是";
+        if (banner === "need_return")
+          return String(r.asset_status) === "使用中" && String(r.need_return) === "是";
         return true;
       });
     }
@@ -514,43 +515,43 @@ function QueryPage() {
 
         {/* 物料领用 — 统计 Banner */}
         {sourceKey === "material" && (
-          <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
                 key: "all" as const,
                 label: "领用总数",
                 value: 128,
                 icon: Package,
-                gradient: "from-blue-500 to-indigo-600",
-                ring: "ring-blue-200",
-                activeRing: "ring-blue-400",
+                gradient: "from-blue-500 via-blue-600 to-indigo-600",
+                glowColor: "shadow-blue-500/40",
+                hoverGlow: "hover:shadow-blue-500/50",
               },
               {
                 key: "in_use" as const,
                 label: "使用中",
                 value: 76,
                 icon: Activity,
-                gradient: "from-emerald-500 to-teal-600",
-                ring: "ring-emerald-200",
-                activeRing: "ring-emerald-400",
+                gradient: "from-emerald-500 via-emerald-600 to-teal-600",
+                glowColor: "shadow-emerald-500/40",
+                hoverGlow: "hover:shadow-emerald-500/50",
               },
               {
                 key: "processed" as const,
                 label: "已处理",
                 value: 34,
                 icon: CheckCircle2,
-                gradient: "from-violet-500 to-purple-600",
-                ring: "ring-violet-200",
-                activeRing: "ring-violet-400",
+                gradient: "from-violet-500 via-purple-600 to-fuchsia-600",
+                glowColor: "shadow-violet-500/40",
+                hoverGlow: "hover:shadow-violet-500/50",
               },
               {
                 key: "need_return" as const,
                 label: "需要归还",
                 value: 18,
                 icon: RotateCcw,
-                gradient: "from-rose-500 to-orange-500",
-                ring: "ring-rose-200",
-                activeRing: "ring-rose-400",
+                gradient: "from-rose-500 via-orange-500 to-amber-500",
+                glowColor: "shadow-rose-500/40",
+                hoverGlow: "hover:shadow-rose-500/50",
               },
             ].map((s) => {
               const Icon = s.icon;
@@ -563,36 +564,59 @@ function QueryPage() {
                     setMaterialBanner(s.key);
                     runQuery(s.key);
                   }}
-                  className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl ${
+                  className={`group relative isolate overflow-hidden rounded-2xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl ${s.hoverGlow} active:translate-y-0 active:scale-[0.98] active:shadow-md focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 ${
                     active
-                      ? `ring-2 ${s.activeRing} ring-offset-2 ring-offset-white scale-[1.02] shadow-xl`
-                      : `ring-1 ${s.ring}`
+                      ? `shadow-xl ${s.glowColor} ring-2 ring-white/80 ring-offset-2 ring-offset-white scale-[1.02] -translate-y-0.5`
+                      : "shadow-md ring-1 ring-white/20"
                   }`}
                 >
+                  {/* 顶部高光 */}
+                  <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent" />
+                  {/* 装饰光斑 */}
+                  <span className="pointer-events-none absolute -bottom-8 -right-8 h-28 w-28 rounded-full bg-white/15 blur-md transition-transform duration-500 group-hover:scale-125" />
+                  <span className="pointer-events-none absolute -top-6 -left-6 h-20 w-20 rounded-full bg-white/10 blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-30" />
+                  {/* 选中左侧条 */}
                   {active && (
-                    <span className="absolute left-0 top-0 h-full w-1 bg-white/70" />
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-white/90 shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
                   )}
-                  <div className="flex items-center justify-between">
+
+                  <div className="relative flex items-center justify-between">
                     <div>
-                      <div className="text-xs/5 font-medium opacity-90">
+                      <div className="text-xs font-medium tracking-wide opacity-90 uppercase">
                         {s.label}
                       </div>
-                      <div className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
+                      <div className="mt-1 text-3xl font-bold tabular-nums tracking-tight drop-shadow-sm">
                         {s.value}
                       </div>
                     </div>
                     <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm transition-transform ${active ? "scale-110 rotate-6" : "group-hover:scale-110"}`}
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 ring-1 ring-white/30 backdrop-blur-sm transition-all duration-300 ${
+                        active
+                          ? "scale-110 rotate-6 bg-white/30"
+                          : "group-hover:scale-110 group-hover:rotate-6 group-hover:bg-white/25"
+                      } group-active:scale-95`}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-5 w-5" strokeWidth={2.5} />
                     </div>
                   </div>
-                  <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-white/10" />
-                  {active && (
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-medium backdrop-blur-sm">
-                      已筛选
-                    </div>
-                  )}
+
+                  <div className="relative mt-3 flex items-center justify-between">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium backdrop-blur-sm transition-opacity ${
+                        active
+                          ? "bg-white/30 opacity-100"
+                          : "bg-white/15 opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full bg-white ${active ? "animate-pulse" : ""}`}
+                      />
+                      {active ? "已筛选" : "点击筛选"}
+                    </span>
+                    <span className="text-[10px] opacity-70 group-hover:opacity-100 transition-opacity">
+                      →
+                    </span>
+                  </div>
                 </button>
               );
             })}

@@ -177,6 +177,10 @@ function SelfServiceTab() {
     icon: typeof Box;
     iconBg: string;
     iconColor: string;
+    from: string;
+    to: string;
+    bar: string;
+    glow: string;
   }[] = [
     {
       key: "lingyong",
@@ -185,6 +189,10 @@ function SelfServiceTab() {
       icon: Box,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
+      from: "from-blue-500",
+      to: "to-indigo-600",
+      bar: "bg-blue-500",
+      glow: "group-hover:shadow-blue-200/60",
     },
     {
       key: "tuihuan",
@@ -193,6 +201,10 @@ function SelfServiceTab() {
       icon: RotateCcw,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
+      from: "from-emerald-500",
+      to: "to-teal-600",
+      bar: "bg-emerald-500",
+      glow: "group-hover:shadow-emerald-200/60",
     },
     {
       key: "zhuanyi",
@@ -201,6 +213,10 @@ function SelfServiceTab() {
       icon: Users,
       iconBg: "bg-violet-100",
       iconColor: "text-violet-600",
+      from: "from-violet-500",
+      to: "to-purple-600",
+      bar: "bg-violet-500",
+      glow: "group-hover:shadow-violet-200/60",
     },
   ];
 
@@ -215,17 +231,36 @@ function SelfServiceTab() {
               key={e.key}
               type="button"
               onClick={() => setDialogFlow(e.key)}
-              className="group rounded-xl border bg-white p-8 shadow-sm hover:shadow-md hover:border-primary/40 transition-all text-center"
+              className={`group relative overflow-hidden rounded-xl border bg-white p-8 shadow-sm text-center transition-all duration-300
+                hover:-translate-y-1 hover:shadow-xl hover:border-transparent ${e.glow}`}
             >
-              <div
-                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${e.iconBg}`}
-              >
-                <Icon className={`h-8 w-8 ${e.iconColor}`} />
+              {/* 顶部色条 */}
+              <span
+                className={`absolute left-0 right-0 top-0 h-1 ${e.bar} scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300`}
+                aria-hidden
+              />
+              {/* 悬浮渐变背景 */}
+              <span
+                className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${e.from} ${e.to} opacity-0 group-hover:opacity-[0.06] transition-opacity duration-300`}
+                aria-hidden
+              />
+              {/* 装饰光斑 */}
+              <span
+                className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${e.from} ${e.to} opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500`}
+                aria-hidden
+              />
+              <div className="relative">
+                <div
+                  className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${e.iconBg} transition-all duration-300
+                    group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-md`}
+                >
+                  <Icon className={`h-8 w-8 ${e.iconColor} transition-transform duration-300`} />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-slate-900 transition-colors">
+                  {e.title}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">{e.desc}</p>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-slate-900">
-                {e.title}
-              </h3>
-              <p className="mt-1 text-xs text-muted-foreground">{e.desc}</p>
             </button>
           );
         })}

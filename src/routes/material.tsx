@@ -458,6 +458,26 @@ function MyRequests() {
           <Filter className="h-4 w-4" />
           筛选
         </Button>
+        <Button onClick={load} className="gap-1.5">
+          <Search className="h-4 w-4" />
+          搜索
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setKeyword("");
+            setNeedReturn("all");
+            setDateStart("");
+            setDateEnd("");
+            setFlowType("all");
+            setApprovalStatus("all");
+            setTimeout(load, 0);
+          }}
+          className="gap-1.5"
+        >
+          <RotateCcw className="h-4 w-4" />
+          重置
+        </Button>
       </div>
 
       {filterOpen && (

@@ -344,7 +344,7 @@ function QueryPage() {
     setResults(null);
     // 切换数据源时统一收起字段面板
     setFieldsCollapsed(true);
-    setMaterialBanner("all");
+    setMaterialBanner(null);
   };
 
   const toggleField = (k: string) => {

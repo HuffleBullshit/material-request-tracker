@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Activity, ArrowLeft, Bell, Search, Package, Users as UsersIcon, AlertTriangle, ToggleRight } from "lucide-react";
+import { Plus, Trash2, Activity, ArrowLeft, Bell, Search, Package, Users as UsersIcon, AlertTriangle, ToggleRight, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/warnings")({
@@ -101,6 +101,31 @@ function WarningsPage() {
   const [filterUser, setFilterUser] = useState<string>("all");
   const [filterCreator, setFilterCreator] = useState<string>("all");
   const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({
+      product_code: "",
+      warning_user: USERS[0],
+      warning_methods: ["email", "robot"],
+      threshold: "10",
+      warehouse: WAREHOUSES[0],
+    });
+    setOpen(true);
+  };
+
+  const openEdit = (row: WarningConfig) => {
+    setEditingId(row.id);
+    setForm({
+      product_code: row.product_code,
+      warning_user: row.warning_user,
+      warning_methods: row.warning_methods,
+      threshold: String(row.threshold),
+      warehouse: row.warehouse,
+    });
+    setOpen(true);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -127,20 +152,18 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
-      enabled: true,
-      created_by: "张总",
     };
-    const { error } = await supabase.from("warning_configs").insert(payload);
-    if (error) return toast.error("保存失败：" + error.message);
-    toast.success("新增成功");
+    if (editingId) {
+      const { error } = await supabase.from("warning_configs").update(payload).eq("id", editingId);
+      if (error) return toast.error("保存失败：" + error.message);
+      toast.success("已更新");
+    } else {
+      const { error } = await supabase.from("warning_configs").insert({ ...payload, enabled: true, created_by: "张总" });
+      if (error) return toast.error("保存失败：" + error.message);
+      toast.success("新增成功");
+    }
     setOpen(false);
-    setForm({
-      product_code: "",
-      warning_user: USERS[0],
-      warning_methods: ["email", "robot"],
-      threshold: "10",
-      warehouse: WAREHOUSES[0],
-    });
+    setEditingId(null);
     load();
   };
 
@@ -210,7 +233,7 @@ function WarningsPage() {
             </h1>
             <p className="mt-1 text-sm text-slate-500">销售订单与合同 · 库存预警配置</p>
           </div>
-          <Button onClick={() => setOpen(true)} className="gap-2">
+          <Button onClick={openCreate} className="gap-2">
             <Plus className="h-4 w-4" /> 新增预警
           </Button>
         </div>
@@ -224,43 +247,54 @@ function WarningsPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="搜索产品名称 / 产品编号"
-                className="pl-9"
-              />
+        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+          {/* 搜索行 */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="搜索产品名称 / 产品编号"
+              className="pl-9"
+            />
+          </div>
+          {/* 筛选行 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">预警人</Label>
+              <Select value={filterUser} onValueChange={setFilterUser}>
+                <SelectTrigger><SelectValue placeholder="全部预警人" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部预警人</SelectItem>
+                  {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={filterUser} onValueChange={setFilterUser}>
-              <SelectTrigger><SelectValue placeholder="预警人" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部预警人</SelectItem>
-                {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
-                  <SelectItem key={u} value={u}>{u}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterCreator} onValueChange={setFilterCreator}>
-              <SelectTrigger><SelectValue placeholder="设置人" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部设置人</SelectItem>
-                {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
-                  <SelectItem key={u} value={u}>{u}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterEnabled} onValueChange={setFilterEnabled}>
-              <SelectTrigger><SelectValue placeholder="预警开关" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
-                <SelectItem value="on">已启用</SelectItem>
-                <SelectItem value="off">已停用</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">设置人</Label>
+              <Select value={filterCreator} onValueChange={setFilterCreator}>
+                <SelectTrigger><SelectValue placeholder="全部设置人" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部设置人</SelectItem>
+                  {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-600">预警开关</Label>
+              <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+                <SelectTrigger><SelectValue placeholder="全部状态" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value="on">已启用</SelectItem>
+                  <SelectItem value="off">已停用</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -286,7 +320,7 @@ function WarningsPage() {
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8 text-slate-400">
                     {list.length === 0 ? (
-                      <>暂无预警配置，<button onClick={() => setOpen(true)} className="text-green-600 hover:underline">点击此处新增</button></>
+                      <>暂无预警配置，<button onClick={openCreate} className="text-green-600 hover:underline">点击此处新增</button></>
                     ) : "未找到符合条件的记录"}
                   </TableCell>
                 </TableRow>
@@ -316,6 +350,9 @@ function WarningsPage() {
                         <Button size="sm" variant="outline" onClick={() => detect(row)} className="gap-1">
                           <Activity className="h-3.5 w-3.5" /> 检测
                         </Button>
+                        <Button size="sm" variant="outline" onClick={() => openEdit(row)} className="gap-1">
+                          <Pencil className="h-3.5 w-3.5" /> 编辑
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => remove(row.id)} className="text-rose-600 hover:text-rose-700 hover:bg-rose-50">
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -332,7 +369,7 @@ function WarningsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>新增预警配置</DialogTitle>
+            <DialogTitle>{editingId ? "编辑预警配置" : "新增预警配置"}</DialogTitle>
             <DialogDescription>设置产品库存预警规则</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-2">

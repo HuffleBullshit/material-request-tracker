@@ -302,95 +302,25 @@ function WarningsPage() {
   const methodLabel = (m: string) =>
     METHOD_OPTIONS.find((o) => o.value === m)?.label ?? m;
 
-  // 应用已确认的筛选条件
+  // 应用搜索 + 筛选
   const filtered = list.filter((row) => {
-    return appliedFilters.every((c) => {
-      const def = FILTER_FIELDS.find((f) => f.key === c.field);
-      if (!def) return true;
-      if (!c.value) return true;
-      const raw = (row as unknown as Record<string, unknown>)[c.field];
-      if (def.type === "enabled") {
-        const want = c.value === "on";
-        return row.enabled === want;
-      }
-      const v = String(raw ?? "").toLowerCase();
-      const target = c.value.toLowerCase();
-      if (c.op === "like") return v.includes(target);
-      return v === target;
-    });
+    if (applied.keyword) {
+      const k = applied.keyword.toLowerCase();
+      const hit =
+        row.product_code.toLowerCase().includes(k) ||
+        (row.product_name ?? "").toLowerCase().includes(k);
+      if (!hit) return false;
+    }
+    if (applied.warningUser !== "all" && row.warning_user !== applied.warningUser)
+      return false;
+    if (applied.createdBy !== "all" && row.created_by !== applied.createdBy)
+      return false;
+    if (applied.enabled !== "all") {
+      const want = applied.enabled === "on";
+      if (row.enabled !== want) return false;
+    }
+    return true;
   });
-
-  const renderValueInput = (c: FilterCond) => {
-    const def = FILTER_FIELDS.find((f) => f.key === c.field);
-    if (!def) return null;
-    if (def.type === "user") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            {USERS.map((u) => (
-              <SelectItem key={u} value={u}>
-                {u}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-    if (def.type === "warehouse") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            {WAREHOUSES.map((w) => (
-              <SelectItem key={w} value={w}>
-                {w}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-    if (def.type === "enabled") {
-      return (
-        <Select
-          value={c.value}
-          onValueChange={(v) => updateFilter(c.id, { value: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="请选择" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="on">已启用</SelectItem>
-            <SelectItem value="off">已停用</SelectItem>
-          </SelectContent>
-        </Select>
-      );
-    }
-    return (
-      <Input
-        value={c.value}
-        onChange={(e) => updateFilter(c.id, { value: e.target.value })}
-        placeholder="输入值"
-      />
-    );
-  };
-
-  const getOps = (fieldKey: string) => {
-    const def = FILTER_FIELDS.find((f) => f.key === fieldKey);
-    if (!def) return OPERATORS_EQ;
-    return def.type === "text" ? OPERATORS_TEXT : OPERATORS_EQ;
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">

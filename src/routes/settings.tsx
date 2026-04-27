@@ -119,36 +119,45 @@ function AssetValueConfigPanel() {
   const openEdit = (it: AssetConfig | null) => {
     setEditing(it);
     setForm({
-      product_code: it?.product_code ?? "GLOBAL",
-      product_name: it?.product_name ?? "全局资产配置价",
-      config_price: it ? String(it.config_price) : "",
+      config_price: it ? String(it.config_price) : "100",
       remark: it?.remark ?? "",
     });
     setShowForm(true);
   };
 
   const submit = async () => {
-    if (!form.product_code.trim()) return toast.error("请输入产品编号");
     const price = Number(form.config_price);
     if (isNaN(price) || price < 0) return toast.error("配置价必须为非负数字");
 
-    const payload = {
-      product_code: form.product_code.trim(),
-      product_name: form.product_name.trim() || null,
-      config_price: price,
-      remark: form.remark.trim() || null,
-    };
-
     if (editing) {
-      const { error } = await supabase.from("asset_value_configs").update(payload).eq("id", editing.id);
+      const { error } = await supabase
+        .from("asset_value_configs")
+        .update({ config_price: price, remark: form.remark.trim() || null })
+        .eq("id", editing.id);
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("已更新");
     } else {
-      const { error } = await supabase.from("asset_value_configs").insert(payload);
+      const { error } = await supabase.from("asset_value_configs").insert({
+        product_code: "GLOBAL",
+        product_name: "全局资产配置价",
+        config_price: price,
+        remark: form.remark.trim() || null,
+        enabled: true,
+      });
       if (error) return toast.error("新增失败：" + error.message);
       toast.success("已新增");
     }
     setShowForm(false);
+    load();
+  };
+
+  const toggleEnabled = async (it: AssetConfig) => {
+    const { error } = await supabase
+      .from("asset_value_configs")
+      .update({ enabled: !it.enabled })
+      .eq("id", it.id);
+    if (error) return toast.error("操作失败：" + error.message);
+    toast.success(!it.enabled ? "已启用" : "已停用");
     load();
   };
 

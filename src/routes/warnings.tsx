@@ -90,29 +90,6 @@ const PRODUCT_NAME_MAP: Record<string, string> = {
   P005: "办公椅",
 };
 
-// ---------- 筛选字段定义（参考通用查询模块下拉筛选）----------
-const FILTER_FIELDS = [
-  { key: "product_name", label: "产品名称", type: "text" },
-  { key: "product_code", label: "产品编号", type: "text" },
-  { key: "warning_user", label: "预警人", type: "user" },
-  { key: "created_by", label: "设置人", type: "user" },
-  { key: "warehouse", label: "预警仓库", type: "warehouse" },
-  { key: "enabled", label: "预警开关", type: "enabled" },
-] as const;
-
-const OPERATORS_TEXT = [
-  { value: "like", label: "包含" },
-  { value: "eq", label: "等于" },
-];
-const OPERATORS_EQ = [{ value: "eq", label: "等于" }];
-
-interface FilterCond {
-  id: string;
-  field: string;
-  op: string;
-  value: string;
-}
-
 function StatCard({
   icon: Icon,
   label,

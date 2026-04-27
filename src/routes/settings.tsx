@@ -216,8 +216,6 @@ function AssetValueConfigPanel() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3 text-left font-medium">产品编号</th>
-              <th className="px-4 py-3 text-left font-medium">产品名称</th>
               <th className="px-4 py-3 text-right font-medium">配置价 (元)</th>
               <th className="px-4 py-3 text-left font-medium">备注</th>
               <th className="px-4 py-3 text-left font-medium">更新时间</th>

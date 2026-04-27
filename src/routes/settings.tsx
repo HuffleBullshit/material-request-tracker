@@ -93,7 +93,6 @@ function PlaceholderPanel({ label }: { label: string }) {
 function AssetValueConfigPanel() {
   const [items, setItems] = useState<AssetConfig[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AssetConfig | null>(null);
   const [form, setForm] = useState({ product_code: "", product_name: "", config_price: "", remark: "" });

@@ -320,7 +320,7 @@ function WarningsPage() {
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8 text-slate-400">
                     {list.length === 0 ? (
-                      <>暂无预警配置，<button onClick={() => setOpen(true)} className="text-green-600 hover:underline">点击此处新增</button></>
+                      <>暂无预警配置，<button onClick={openCreate} className="text-green-600 hover:underline">点击此处新增</button></>
                     ) : "未找到符合条件的记录"}
                   </TableCell>
                 </TableRow>

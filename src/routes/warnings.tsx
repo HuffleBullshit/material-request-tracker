@@ -141,6 +141,11 @@ function WarningsPage() {
   const [filterWarningUser, setFilterWarningUser] = useState<string>("all");
   const [filterCreatedBy, setFilterCreatedBy] = useState<string>("all");
   const [filterEnabled, setFilterEnabled] = useState<string>("all");
+  const activeFilterCount =
+    (filterWarningUser !== "all" ? 1 : 0) +
+    (filterCreatedBy !== "all" ? 1 : 0) +
+    (filterEnabled !== "all" ? 1 : 0);
+
   const [applied, setApplied] = useState({
     keyword: "",
     warningUser: "all",

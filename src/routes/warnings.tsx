@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Activity, ArrowLeft, Bell } from "lucide-react";
+import { Plus, Trash2, Activity, ArrowLeft, Bell, Search, Package, Users as UsersIcon, AlertTriangle, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/warnings")({
@@ -83,6 +83,10 @@ function WarningsPage() {
     threshold: "10",
     warehouse: WAREHOUSES[0],
   });
+  const [search, setSearch] = useState("");
+  const [filterUser, setFilterUser] = useState<string>("all");
+  const [filterCreator, setFilterCreator] = useState<string>("all");
+  const [filterEnabled, setFilterEnabled] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
@@ -169,6 +173,16 @@ function WarningsPage() {
 
   const methodLabel = (m: string) => METHOD_OPTIONS.find((o) => o.value === m)?.label ?? m;
 
+  const filtered = list.filter((r) => {
+    const s = search.trim().toLowerCase();
+    if (s && !r.product_code.toLowerCase().includes(s) && !(r.product_name ?? "").toLowerCase().includes(s)) return false;
+    if (filterUser !== "all" && r.warning_user !== filterUser) return false;
+    if (filterCreator !== "all" && r.created_by !== filterCreator) return false;
+    if (filterEnabled === "on" && !r.enabled) return false;
+    if (filterEnabled === "off" && r.enabled) return false;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="mx-auto max-w-[1400px] px-6 py-8">
@@ -185,6 +199,55 @@ function WarningsPage() {
           <Button onClick={() => setOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" /> 新增预警
           </Button>
+        </div>
+
+        {/* Stats Banner */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <StatCard icon={Package} label="预警配置总数" value={list.length} color="bg-blue-100 text-blue-600" />
+          <StatCard icon={ToggleRight} label="已启用" value={list.filter((r) => r.enabled).length} color="bg-emerald-100 text-emerald-600" />
+          <StatCard icon={AlertTriangle} label="已停用" value={list.filter((r) => !r.enabled).length} color="bg-amber-100 text-amber-600" />
+          <StatCard icon={UsersIcon} label="涉及预警人" value={new Set(list.map((r) => r.warning_user)).size} color="bg-purple-100 text-purple-600" />
+        </div>
+
+        {/* Search & Filters */}
+        <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="搜索产品名称 / 产品编号"
+                className="pl-9"
+              />
+            </div>
+            <Select value={filterUser} onValueChange={setFilterUser}>
+              <SelectTrigger><SelectValue placeholder="预警人" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部预警人</SelectItem>
+                {Array.from(new Set(list.map((r) => r.warning_user))).map((u) => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterCreator} onValueChange={setFilterCreator}>
+              <SelectTrigger><SelectValue placeholder="设置人" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部设置人</SelectItem>
+                {Array.from(new Set(list.map((r) => r.created_by))).map((u) => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+              <SelectTrigger><SelectValue placeholder="预警开关" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="on">已启用</SelectItem>
+                <SelectItem value="off">已停用</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -205,15 +268,16 @@ function WarningsPage() {
             <TableBody>
               {loading ? (
                 <TableRow><TableCell colSpan={9} className="text-center py-8 text-slate-400">加载中...</TableCell></TableRow>
-              ) : list.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8 text-slate-400">
-                    暂无预警配置，
-                    <button onClick={() => setOpen(true)} className="text-green-600 hover:underline">点击此处新增</button>
+                    {list.length === 0 ? (
+                      <>暂无预警配置，<button onClick={() => setOpen(true)} className="text-green-600 hover:underline">点击此处新增</button></>
+                    ) : "未找到符合条件的记录"}
                   </TableCell>
                 </TableRow>
               ) : (
-                list.map((row) => (
+                filtered.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-mono">{row.product_code}</TableCell>
                     <TableCell>{row.product_name ?? "-"}</TableCell>
@@ -313,6 +377,20 @@ function WarningsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color }: { icon: typeof Bell; label: string; value: number; color: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center gap-3">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${color}`}>
+        <Icon className="h-6 w-6" />
+      </div>
+      <div>
+        <div className="text-2xl font-bold text-slate-900">{value}</div>
+        <div className="text-xs text-slate-500">{label}</div>
+      </div>
     </div>
   );
 }

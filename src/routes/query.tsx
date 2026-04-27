@@ -516,40 +516,61 @@ function QueryPage() {
           <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               {
+                key: "all" as const,
                 label: "领用总数",
                 value: 128,
                 icon: Package,
                 gradient: "from-blue-500 to-indigo-600",
                 ring: "ring-blue-200",
+                activeRing: "ring-blue-400",
               },
               {
+                key: "in_use" as const,
                 label: "使用中",
                 value: 76,
                 icon: Activity,
                 gradient: "from-emerald-500 to-teal-600",
                 ring: "ring-emerald-200",
+                activeRing: "ring-emerald-400",
               },
               {
+                key: "processed" as const,
                 label: "已处理",
                 value: 34,
                 icon: CheckCircle2,
                 gradient: "from-violet-500 to-purple-600",
                 ring: "ring-violet-200",
+                activeRing: "ring-violet-400",
               },
               {
+                key: "need_return" as const,
                 label: "需要归还",
                 value: 18,
                 icon: RotateCcw,
                 gradient: "from-rose-500 to-orange-500",
                 ring: "ring-rose-200",
+                activeRing: "ring-rose-400",
               },
             ].map((s) => {
               const Icon = s.icon;
+              const active = materialBanner === s.key;
               return (
-                <div
+                <button
                   key={s.label}
-                  className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${s.gradient} p-4 text-white shadow-md ring-1 ${s.ring} transition-transform hover:-translate-y-0.5 hover:shadow-lg`}
+                  type="button"
+                  onClick={() => {
+                    setMaterialBanner(s.key);
+                    runQuery(s.key);
+                  }}
+                  className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${s.gradient} p-4 text-left text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl ${
+                    active
+                      ? `ring-2 ${s.activeRing} ring-offset-2 ring-offset-white scale-[1.02] shadow-xl`
+                      : `ring-1 ${s.ring}`
+                  }`}
                 >
+                  {active && (
+                    <span className="absolute left-0 top-0 h-full w-1 bg-white/70" />
+                  )}
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-xs/5 font-medium opacity-90">
@@ -559,12 +580,19 @@ function QueryPage() {
                         {s.value}
                       </div>
                     </div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm transition-transform ${active ? "scale-110 rotate-6" : "group-hover:scale-110"}`}
+                    >
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>
                   <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-white/10" />
-                </div>
+                  {active && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-medium backdrop-blur-sm">
+                      已筛选
+                    </div>
+                  )}
+                </button>
               );
             })}
           </div>

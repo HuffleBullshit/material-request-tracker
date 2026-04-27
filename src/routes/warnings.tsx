@@ -361,82 +361,90 @@ function WarningsPage() {
           />
         </div>
 
-        {/* 搜索与筛选（参考物料管理-我的申请样式） */}
+        {/* 搜索与筛选 */}
         <Card className="mb-6 border-slate-200 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <span className="inline-block h-4 w-1 rounded bg-blue-500" />
-              搜索与筛选
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-3 md:grid-cols-4">
-              <div className="space-y-1.5 md:col-span-1">
-                <Label>产品名称 / 编号</Label>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="模糊搜索"
+                  placeholder="请输入产品名称/编号"
+                  className="pl-9"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") applyFilters();
                   }}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>预警人</Label>
-                <Select value={filterWarningUser} onValueChange={setFilterWarningUser}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    {USERS.map((u) => (
-                      <SelectItem key={u} value={u}>
-                        {u}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>设置人</Label>
-                <Select value={filterCreatedBy} onValueChange={setFilterCreatedBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    {USERS.map((u) => (
-                      <SelectItem key={u} value={u}>
-                        {u}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>预警开关</Label>
-                <Select value={filterEnabled} onValueChange={setFilterEnabled}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    <SelectItem value="on">已启用</SelectItem>
-                    <SelectItem value="off">已停用</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="gap-1 relative">
+                    <Filter className="h-4 w-4" /> 筛选
+                    {activeFilterCount > 0 && (
+                      <Badge className="ml-1 h-5 min-w-5 px-1.5 bg-blue-600 hover:bg-blue-600 text-white">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-4 space-y-3">
+                  <div className="space-y-1.5">
+                    <Label>预警人</Label>
+                    <Select value={filterWarningUser} onValueChange={setFilterWarningUser}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        {USERS.map((u) => (
+                          <SelectItem key={u} value={u}>
+                            {u}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>设置人</Label>
+                    <Select value={filterCreatedBy} onValueChange={setFilterCreatedBy}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        {USERS.map((u) => (
+                          <SelectItem key={u} value={u}>
+                            {u}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>预警开关</Label>
+                    <Select value={filterEnabled} onValueChange={setFilterEnabled}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        <SelectItem value="on">已启用</SelectItem>
+                        <SelectItem value="off">已停用</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
               <Button onClick={applyFilters} className="gap-1 bg-blue-600 hover:bg-blue-700 text-white">
                 <Play className="h-4 w-4" /> 查询
               </Button>
               <Button variant="outline" onClick={resetFilters} className="gap-1">
                 <RotateCcw className="h-4 w-4" /> 重置
               </Button>
-              <div className="ml-auto text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground whitespace-nowrap">
                 共 <span className="font-semibold text-foreground">{filtered.length}</span> 条
               </div>
             </div>

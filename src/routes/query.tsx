@@ -395,7 +395,7 @@ function QueryPage() {
   };
 
   const runQuery = async (
-    bannerOverride?: "all" | "in_use" | "processed" | "need_return",
+    bannerOverride?: MaterialBannerKey | null,
   ) => {
     if (fields.length === 0) {
       toast.warning("请至少选择一个字段");
@@ -404,8 +404,9 @@ function QueryPage() {
     setRunning(true);
     await new Promise((r) => setTimeout(r, 500));
     let data = mockRun(source, fields);
-    const banner = bannerOverride ?? materialBanner;
-    if (sourceKey === "material" && banner !== "all") {
+    const banner =
+      bannerOverride !== undefined ? bannerOverride : materialBanner;
+    if (sourceKey === "material" && banner && banner !== "all") {
       data = data.filter((r) => {
         if (banner === "in_use") return String(r.asset_status) === "使用中";
         if (banner === "processed") return String(r.asset_status) === "已处理";

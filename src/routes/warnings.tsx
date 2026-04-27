@@ -449,9 +449,6 @@ function WarningsPage() {
               <Button variant="outline" onClick={resetFilters} className="gap-1">
                 <RotateCcw className="h-4 w-4" /> 重置
               </Button>
-              <div className="text-sm text-muted-foreground whitespace-nowrap">
-                共 <span className="font-semibold text-foreground">{filtered.length}</span> 条
-              </div>
             </div>
           </CardContent>
         </Card>

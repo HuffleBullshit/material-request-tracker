@@ -43,7 +43,11 @@ import {
   Pencil,
   Play,
   RotateCcw,
+  Filter,
+  Search,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/warnings")({

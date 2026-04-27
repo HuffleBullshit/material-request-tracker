@@ -350,6 +350,9 @@ function WarningsPage() {
                         <Button size="sm" variant="outline" onClick={() => detect(row)} className="gap-1">
                           <Activity className="h-3.5 w-3.5" /> 检测
                         </Button>
+                        <Button size="sm" variant="outline" onClick={() => openEdit(row)} className="gap-1">
+                          <Pencil className="h-3.5 w-3.5" /> 编辑
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => remove(row.id)} className="text-rose-600 hover:text-rose-700 hover:bg-rose-50">
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>

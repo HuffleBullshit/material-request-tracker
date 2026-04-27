@@ -823,7 +823,7 @@ function QueryPage() {
 
                 <div className="flex justify-end pt-2">
                   <Button
-                    onClick={runQuery}
+                    onClick={() => runQuery()}
                     disabled={running}
                     className="bg-emerald-500 hover:bg-emerald-600 text-white"
                   >

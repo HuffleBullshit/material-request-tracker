@@ -106,13 +106,14 @@ export function RequestRecords() {
         <CardTitle>申请记录查询</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
           <div className="space-y-1.5">
             <Label>申请人</Label>
             <Input
               value={applicant}
               onChange={(e) => setApplicant(e.target.value)}
               placeholder="模糊搜索"
+              onKeyDown={(e) => { if (e.key === "Enter") load(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -121,6 +122,7 @@ export function RequestRecords() {
               value={productCode}
               onChange={(e) => setProductCode(e.target.value)}
               placeholder="模糊搜索"
+              onKeyDown={(e) => { if (e.key === "Enter") load(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -129,8 +131,22 @@ export function RequestRecords() {
               value={approvalNo}
               onChange={(e) => setApprovalNo(e.target.value)}
               placeholder="模糊搜索"
+              onKeyDown={(e) => { if (e.key === "Enter") load(); }}
             />
           </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={load} disabled={loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+              查询
+            </Button>
+            <Button variant="outline" onClick={reset} disabled={loading}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              重置
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
           <div className="space-y-1.5">
             <Label>是否需要归还</Label>
             <Select value={needReturn} onValueChange={setNeedReturn}>
@@ -154,19 +170,9 @@ export function RequestRecords() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button onClick={load} disabled={loading}>
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-            查询
-          </Button>
-          <Button variant="outline" onClick={reset} disabled={loading}>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            重置
-          </Button>
-          <div className="ml-auto text-sm text-muted-foreground">
-            共 <span className="font-semibold text-foreground">{stats.total}</span> 条 ·
-            需归还 <span className="font-semibold text-foreground">{stats.need}</span> 条
-          </div>
+        <div className="flex items-center justify-end text-sm text-muted-foreground">
+          共 <span className="mx-1 font-semibold text-foreground">{stats.total}</span> 条 ·
+          需归还 <span className="mx-1 font-semibold text-foreground">{stats.need}</span> 条
         </div>
 
         <div className="rounded-md border overflow-x-auto">

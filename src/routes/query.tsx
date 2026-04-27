@@ -314,10 +314,11 @@ function QueryPage() {
   const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
   // 字段选择面板：所有模块默认收起
   const [fieldsCollapsed, setFieldsCollapsed] = useState<boolean>(true);
-  // 物料 Banner 快速筛选：all / in_use / processed / need_return
-  const [materialBanner, setMaterialBanner] = useState<
-    "all" | "in_use" | "processed" | "need_return"
-  >("all");
+  // 物料 Banner 快速筛选：null 表示未筛选（默认）
+  type MaterialBannerKey = "all" | "in_use" | "processed" | "need_return";
+  const [materialBanner, setMaterialBanner] = useState<MaterialBannerKey | null>(
+    null,
+  );
 
   // 模板
   const [tplOpen, setTplOpen] = useState(false);

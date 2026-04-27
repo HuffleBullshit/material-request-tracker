@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_value_configs: {
+        Row: {
+          config_price: number
+          created_at: string
+          id: string
+          product_code: string
+          product_name: string | null
+          remark: string | null
+          updated_at: string
+        }
+        Insert: {
+          config_price?: number
+          created_at?: string
+          id?: string
+          product_code: string
+          product_name?: string | null
+          remark?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config_price?: number
+          created_at?: string
+          id?: string
+          product_code?: string
+          product_name?: string | null
+          remark?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       material_requests: {
         Row: {
           applicant: string

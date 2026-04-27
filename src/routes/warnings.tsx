@@ -369,7 +369,7 @@ function WarningsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>新增预警配置</DialogTitle>
+            <DialogTitle>{editingId ? "编辑预警配置" : "新增预警配置"}</DialogTitle>
             <DialogDescription>设置产品库存预警规则</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-2">

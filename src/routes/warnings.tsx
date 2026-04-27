@@ -538,7 +538,7 @@ function WarningsPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                  <TableHead>产品编号</TableHead>
+                  <TableHead className="pl-6">产品编号</TableHead>
                   <TableHead>产品名称</TableHead>
                   <TableHead>预警人</TableHead>
                   <TableHead>预警方式</TableHead>
@@ -577,7 +577,7 @@ function WarningsPage() {
                 ) : (
                   filtered.map((row) => (
                     <TableRow key={row.id} className="hover:bg-blue-50/40">
-                      <TableCell className="font-mono text-blue-700 font-medium">
+                      <TableCell className="font-mono text-blue-700 font-medium pl-6">
                         {row.product_code}
                       </TableCell>
                       <TableCell className="font-medium">{row.product_name ?? "-"}</TableCell>

@@ -182,7 +182,11 @@ function AssetValueConfigPanel() {
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">暂无配置，点击编辑新增</td>
+                <td colSpan={4} className="px-4 py-8 text-center">
+                  <button onClick={() => openEdit(null)} className="text-indigo-600 hover:underline">
+                    暂无配置，点击此处新增
+                  </button>
+                </td>
               </tr>
             ) : (
               (() => {

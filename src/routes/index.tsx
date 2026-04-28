@@ -15,6 +15,7 @@ import {
   GripVertical,
   UserCircle2,
   Lightbulb,
+  History,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 

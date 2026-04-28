@@ -338,7 +338,7 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
-      reminder_time: form.reminder_time || null,
+      reminder_time: stringifyReminder({ days: form.reminder_days, time: form.reminder_time }),
     };
     if (editingId) {
       const { error } = await supabase

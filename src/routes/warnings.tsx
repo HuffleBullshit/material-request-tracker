@@ -292,14 +292,14 @@ function WarningsPage() {
     if (editingId) {
       const { error } = await supabase
         .from("warning_configs")
-        .update(payload)
+        .update({ ...payload, created_by: CURRENT_USER })
         .eq("id", editingId);
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("已更新");
     } else {
       const { error } = await supabase
         .from("warning_configs")
-        .insert({ ...payload, enabled: true, created_by: "张总" });
+        .insert({ ...payload, enabled: true, created_by: CURRENT_USER });
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("新增成功");
     }

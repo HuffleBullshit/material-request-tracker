@@ -290,6 +290,7 @@ function WarningsPage() {
       warning_methods: ["email", "robot"],
       threshold: "10",
       warehouse: WAREHOUSES[0],
+      reminder_days: [],
       reminder_time: "09:00",
     });
     setOpen(true);
@@ -297,13 +298,15 @@ function WarningsPage() {
 
   const openEdit = (row: WarningConfig) => {
     setEditingId(row.id);
+    const sched = parseReminder(row.reminder_time);
     setForm({
       product_code: row.product_code,
       warning_user: row.warning_user,
       warning_methods: row.warning_methods,
       threshold: String(row.threshold),
       warehouse: row.warehouse,
-      reminder_time: row.reminder_time ?? "09:00",
+      reminder_days: sched.days,
+      reminder_time: sched.time,
     });
     setOpen(true);
   };

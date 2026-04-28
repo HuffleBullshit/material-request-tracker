@@ -134,6 +134,60 @@ export type Database = {
         }
         Relationships: []
       }
+      warning_history: {
+        Row: {
+          content: string
+          created_at: string
+          current_stock: number
+          detected_at: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          product_code: string
+          product_name: string | null
+          result: string | null
+          status: string
+          threshold: number
+          title: string
+          updated_at: string
+          warning_user: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          current_stock?: number
+          detected_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          product_code: string
+          product_name?: string | null
+          result?: string | null
+          status?: string
+          threshold?: number
+          title: string
+          updated_at?: string
+          warning_user: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          current_stock?: number
+          detected_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          product_code?: string
+          product_name?: string | null
+          result?: string | null
+          status?: string
+          threshold?: number
+          title?: string
+          updated_at?: string
+          warning_user?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

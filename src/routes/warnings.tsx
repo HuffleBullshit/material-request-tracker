@@ -337,9 +337,15 @@ function WarningsPage() {
     const currentStock = (seed * 7) % 50;
     const diff = currentStock - row.threshold;
     const triggered = currentStock <= row.threshold;
-    toast[triggered ? "warning" : "success"](`检测结果 - ${row.product_code}`, {
-      description: `仓库：${row.warehouse}\n当前库存：${currentStock}\n预警阈值：${row.threshold}\n差额：${diff >= 0 ? "+" : ""}${diff}\n状态：${triggered ? "⚠️ 已触发预警，将通知 " + row.warning_user : "✅ 库存正常"}`,
-      duration: 6000,
+    setDetectResult({
+      product_code: row.product_code,
+      product_name: row.product_name,
+      warehouse: row.warehouse,
+      currentStock,
+      threshold: row.threshold,
+      diff,
+      triggered,
+      warning_user: row.warning_user,
     });
   };
 

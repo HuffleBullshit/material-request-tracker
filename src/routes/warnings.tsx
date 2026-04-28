@@ -881,7 +881,7 @@ function WarningsPage() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label>提醒时间（可多选周几，留空则每天）</Label>
+              <Label>提醒时间（可多选周几，不选则不提醒）</Label>
               <div className="grid grid-cols-7 gap-1.5">
                 {WEEKDAYS.map((w) => {
                   const active = form.reminder_days.includes(w.value);

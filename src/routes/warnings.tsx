@@ -590,12 +590,8 @@ function WarningsPage() {
                       加载中...
                     </TableCell>
                   </TableRow>
-                ) : filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={10} className="text-center py-10 text-slate-400"></TableCell></TableRow>
-                ) : (</TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead>
-              </TableHeader>
-              <TableBody>
+                ) : null}
+
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-10 text-slate-400">

@@ -80,6 +80,7 @@ interface WarningConfig {
 }
 
 const USERS = ["张总", "李经理", "王主管", "赵采购", "刘库管"];
+const CURRENT_USER = "张总"; // 当前登录用户（mock）
 const WAREHOUSES = ["主仓库", "上海仓", "深圳仓", "北京仓", "成都仓"];
 const METHOD_OPTIONS = [
   { value: "email", label: "邮件" },
@@ -136,6 +137,16 @@ function WarningsPage() {
     warehouse: WAREHOUSES[0],
   });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [detectResult, setDetectResult] = useState<{
+    product_code: string;
+    product_name: string | null;
+    warehouse: string;
+    currentStock: number;
+    threshold: number;
+    diff: number;
+    triggered: boolean;
+    warning_user: string;
+  } | null>(null);
 
   // 搜索/筛选（参考物料管理-我的申请样式）
   const [keyword, setKeyword] = useState("");
@@ -281,14 +292,14 @@ function WarningsPage() {
     if (editingId) {
       const { error } = await supabase
         .from("warning_configs")
-        .update(payload)
+        .update({ ...payload, created_by: CURRENT_USER })
         .eq("id", editingId);
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("已更新");
     } else {
       const { error } = await supabase
         .from("warning_configs")
-        .insert({ ...payload, enabled: true, created_by: "张总" });
+        .insert({ ...payload, enabled: true, created_by: CURRENT_USER });
       if (error) return toast.error("保存失败：" + error.message);
       toast.success("新增成功");
     }
@@ -326,9 +337,15 @@ function WarningsPage() {
     const currentStock = (seed * 7) % 50;
     const diff = currentStock - row.threshold;
     const triggered = currentStock <= row.threshold;
-    toast[triggered ? "warning" : "success"](`检测结果 - ${row.product_code}`, {
-      description: `仓库：${row.warehouse}\n当前库存：${currentStock}\n预警阈值：${row.threshold}\n差额：${diff >= 0 ? "+" : ""}${diff}\n状态：${triggered ? "⚠️ 已触发预警，将通知 " + row.warning_user : "✅ 库存正常"}`,
-      duration: 6000,
+    setDetectResult({
+      product_code: row.product_code,
+      product_name: row.product_name,
+      warehouse: row.warehouse,
+      currentStock,
+      threshold: row.threshold,
+      diff,
+      triggered,
+      warning_user: row.warning_user,
     });
   };
 
@@ -545,20 +562,19 @@ function WarningsPage() {
                   <TableHead>预警阈值</TableHead>
                   <TableHead>预警仓库</TableHead>
                   <TableHead>预警开关</TableHead>
-                  <TableHead>设置人</TableHead>
                   <TableHead className="text-left">操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
                       加载中...
                     </TableCell>
                   </TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
                       {list.length === 0 ? (
                         <>
                           暂无预警配置，
@@ -613,7 +629,6 @@ function WarningsPage() {
                           onCheckedChange={() => toggleEnabled(row)}
                         />
                       </TableCell>
-                      <TableCell className="text-slate-600">{row.created_by}</TableCell>
                       <TableCell className="text-left">
                         <div className="inline-flex gap-1">
                           <Button
@@ -730,6 +745,75 @@ function WarningsPage() {
               取消
             </Button>
             <Button onClick={submit}>保存</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 检测结果弹窗 */}
+      <Dialog open={!!detectResult} onOpenChange={(o) => !o && setDetectResult(null)}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-blue-600" />
+              库存检测结果
+            </DialogTitle>
+            <DialogDescription>
+              产品 {detectResult?.product_code}
+              {detectResult?.product_name ? ` · ${detectResult.product_name}` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {detectResult && (
+            <div className="space-y-3 py-2">
+              <div
+                className={`rounded-lg p-4 text-center ${
+                  detectResult.triggered
+                    ? "bg-amber-50 ring-1 ring-amber-200"
+                    : "bg-emerald-50 ring-1 ring-emerald-200"
+                }`}
+              >
+                <div className="text-xs text-slate-500 mb-1">当前库存</div>
+                <div
+                  className={`text-3xl font-bold font-mono ${
+                    detectResult.triggered ? "text-amber-700" : "text-emerald-700"
+                  }`}
+                >
+                  {detectResult.currentStock}
+                </div>
+                <div
+                  className={`mt-2 text-sm font-medium ${
+                    detectResult.triggered ? "text-amber-700" : "text-emerald-700"
+                  }`}
+                >
+                  {detectResult.triggered
+                    ? `⚠️ 已触发预警，将通知 ${detectResult.warning_user}`
+                    : "✅ 库存正常"}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-md border border-slate-200 p-3">
+                  <div className="text-xs text-slate-500">预警仓库</div>
+                  <div className="mt-1 font-medium">{detectResult.warehouse}</div>
+                </div>
+                <div className="rounded-md border border-slate-200 p-3">
+                  <div className="text-xs text-slate-500">预警阈值</div>
+                  <div className="mt-1 font-medium font-mono">≤ {detectResult.threshold}</div>
+                </div>
+                <div className="rounded-md border border-slate-200 p-3 col-span-2">
+                  <div className="text-xs text-slate-500">差额（当前 - 阈值）</div>
+                  <div
+                    className={`mt-1 font-medium font-mono ${
+                      detectResult.diff < 0 ? "text-rose-600" : "text-emerald-600"
+                    }`}
+                  >
+                    {detectResult.diff >= 0 ? "+" : ""}
+                    {detectResult.diff}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDetectResult(null)}>关闭</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

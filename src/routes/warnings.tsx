@@ -84,7 +84,7 @@ const stringifyReminder = (s: ReminderSchedule): string =>
 
 const formatReminder = (raw: string | null): string => {
   const s = parseReminder(raw);
-  if (s.days.length === 0) return s.time ? `每天 ${s.time}` : "未设置";
+  if (s.days.length === 0) return "不提醒";
   if (s.days.length === 7) return `每天 ${s.time}`;
   const labels = WEEKDAYS.filter((w) => s.days.includes(w.value)).map((w) => w.label.replace("周", ""));
   return `周${labels.join("、")} ${s.time}`;
@@ -183,7 +183,7 @@ function ReminderPicker({
   };
   const label =
     value.days.length === 0
-      ? `每天 ${value.time}`
+      ? "不提醒"
       : value.days.length === 7
         ? `每天 ${value.time}`
         : `周${WEEKDAYS.filter((w) => value.days.includes(w.value))
@@ -199,7 +199,7 @@ function ReminderPicker({
       <PopoverContent className="w-64 p-3" align="start">
         <div className="space-y-3">
           <div>
-            <div className="text-xs text-slate-500 mb-1.5">每周（不选则每天）</div>
+            <div className="text-xs text-slate-500 mb-1.5">每周（不选则不提醒）</div>
             <div className="grid grid-cols-4 gap-1.5">
               {WEEKDAYS.map((w) => {
                 const active = value.days.includes(w.value);
@@ -245,7 +245,7 @@ function WarningsPage() {
     warning_methods: ["email", "robot"] as string[],
     threshold: "10",
     warehouse: WAREHOUSES[0],
-    reminder_days: [] as number[],
+    reminder_days: [1] as number[],
     reminder_time: "09:00",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -357,7 +357,7 @@ function WarningsPage() {
       warning_methods: ["email", "robot"],
       threshold: "10",
       warehouse: WAREHOUSES[0],
-      reminder_days: [],
+      reminder_days: [1],
       reminder_time: "09:00",
     });
     setOpen(true);
@@ -881,7 +881,7 @@ function WarningsPage() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label>提醒时间（可多选周几，留空则每天）</Label>
+              <Label>提醒时间（可多选周几，不选则不提醒）</Label>
               <div className="grid grid-cols-7 gap-1.5">
                 {WEEKDAYS.map((w) => {
                   const active = form.reminder_days.includes(w.value);

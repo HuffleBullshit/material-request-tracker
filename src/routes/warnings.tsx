@@ -357,7 +357,7 @@ function WarningsPage() {
       warning_methods: ["email", "robot"],
       threshold: "10",
       warehouse: WAREHOUSES[0],
-      reminder_days: [],
+      reminder_days: [1],
       reminder_time: "09:00",
     });
     setOpen(true);

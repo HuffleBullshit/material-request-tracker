@@ -292,6 +292,7 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
+      reminder_time: form.reminder_time || null,
     };
     if (editingId) {
       const { error } = await supabase

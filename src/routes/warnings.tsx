@@ -80,6 +80,7 @@ interface WarningConfig {
 }
 
 const USERS = ["张总", "李经理", "王主管", "赵采购", "刘库管"];
+const CURRENT_USER = "张总"; // 当前登录用户（mock）
 const WAREHOUSES = ["主仓库", "上海仓", "深圳仓", "北京仓", "成都仓"];
 const METHOD_OPTIONS = [
   { value: "email", label: "邮件" },

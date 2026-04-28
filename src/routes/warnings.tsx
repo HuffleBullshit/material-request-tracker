@@ -629,7 +629,6 @@ function WarningsPage() {
                           onCheckedChange={() => toggleEnabled(row)}
                         />
                       </TableCell>
-                      <TableCell className="text-slate-600">{row.created_by}</TableCell>
                       <TableCell className="text-left">
                         <div className="inline-flex gap-1">
                           <Button

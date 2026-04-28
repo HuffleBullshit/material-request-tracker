@@ -748,6 +748,75 @@ function WarningsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 检测结果弹窗 */}
+      <Dialog open={!!detectResult} onOpenChange={(o) => !o && setDetectResult(null)}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-blue-600" />
+              库存检测结果
+            </DialogTitle>
+            <DialogDescription>
+              产品 {detectResult?.product_code}
+              {detectResult?.product_name ? ` · ${detectResult.product_name}` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {detectResult && (
+            <div className="space-y-3 py-2">
+              <div
+                className={`rounded-lg p-4 text-center ${
+                  detectResult.triggered
+                    ? "bg-amber-50 ring-1 ring-amber-200"
+                    : "bg-emerald-50 ring-1 ring-emerald-200"
+                }`}
+              >
+                <div className="text-xs text-slate-500 mb-1">当前库存</div>
+                <div
+                  className={`text-3xl font-bold font-mono ${
+                    detectResult.triggered ? "text-amber-700" : "text-emerald-700"
+                  }`}
+                >
+                  {detectResult.currentStock}
+                </div>
+                <div
+                  className={`mt-2 text-sm font-medium ${
+                    detectResult.triggered ? "text-amber-700" : "text-emerald-700"
+                  }`}
+                >
+                  {detectResult.triggered
+                    ? `⚠️ 已触发预警，将通知 ${detectResult.warning_user}`
+                    : "✅ 库存正常"}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-md border border-slate-200 p-3">
+                  <div className="text-xs text-slate-500">预警仓库</div>
+                  <div className="mt-1 font-medium">{detectResult.warehouse}</div>
+                </div>
+                <div className="rounded-md border border-slate-200 p-3">
+                  <div className="text-xs text-slate-500">预警阈值</div>
+                  <div className="mt-1 font-medium font-mono">≤ {detectResult.threshold}</div>
+                </div>
+                <div className="rounded-md border border-slate-200 p-3 col-span-2">
+                  <div className="text-xs text-slate-500">差额（当前 - 阈值）</div>
+                  <div
+                    className={`mt-1 font-medium font-mono ${
+                      detectResult.diff < 0 ? "text-rose-600" : "text-emerald-600"
+                    }`}
+                  >
+                    {detectResult.diff >= 0 ? "+" : ""}
+                    {detectResult.diff}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDetectResult(null)}>关闭</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

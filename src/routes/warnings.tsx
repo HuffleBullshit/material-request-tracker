@@ -577,9 +577,23 @@ function WarningsPage() {
                   <TableHead>预警方式</TableHead>
                   <TableHead>预警阈值</TableHead>
                   <TableHead>预警仓库</TableHead>
+                  <TableHead>创建时间</TableHead>
+                  <TableHead>提醒时间</TableHead>
                   <TableHead>预警开关</TableHead>
                   <TableHead className="text-left">操作</TableHead>
                 </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-10 text-slate-400">
+                      加载中...
+                    </TableCell>
+                  </TableRow>
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-10 text-slate-400"></TableCell></TableRow>
+                ) : (</TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TablePlaceholder></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead></TableHead>
               </TableHeader>
               <TableBody>
                 {loading ? (

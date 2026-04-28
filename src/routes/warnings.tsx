@@ -183,7 +183,7 @@ function ReminderPicker({
   };
   const label =
     value.days.length === 0
-      ? `每天 ${value.time}`
+      ? "不提醒"
       : value.days.length === 7
         ? `每天 ${value.time}`
         : `周${WEEKDAYS.filter((w) => value.days.includes(w.value))
@@ -199,7 +199,7 @@ function ReminderPicker({
       <PopoverContent className="w-64 p-3" align="start">
         <div className="space-y-3">
           <div>
-            <div className="text-xs text-slate-500 mb-1.5">每周（不选则每天）</div>
+            <div className="text-xs text-slate-500 mb-1.5">每周（不选则不提醒）</div>
             <div className="grid grid-cols-4 gap-1.5">
               {WEEKDAYS.map((w) => {
                 const active = value.days.includes(w.value);

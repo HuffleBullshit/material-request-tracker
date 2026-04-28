@@ -265,12 +265,6 @@ function WarningsPage() {
     warning_user: string;
   } | null>(null);
 
-  // 历史预警记录
-  const [history, setHistory] = useState<WarningHistory[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [handlingRow, setHandlingRow] = useState<WarningHistory | null>(null);
-  const [handleResult, setHandleResult] = useState("");
-
   // 搜索/筛选（参考物料管理-我的申请样式）
   const [keyword, setKeyword] = useState("");
   const [filterWarningUser, setFilterWarningUser] = useState<string>("all");

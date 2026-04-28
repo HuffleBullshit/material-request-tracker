@@ -562,7 +562,6 @@ function WarningsPage() {
                   <TableHead>预警阈值</TableHead>
                   <TableHead>预警仓库</TableHead>
                   <TableHead>预警开关</TableHead>
-                  <TableHead>设置人</TableHead>
                   <TableHead className="text-left">操作</TableHead>
                 </TableRow>
               </TableHeader>

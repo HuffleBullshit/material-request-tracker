@@ -77,6 +77,7 @@ interface WarningConfig {
   created_by: string;
   created_at: string;
   updated_at: string;
+  reminder_time: string | null;
 }
 
 const USERS = ["张总", "李经理", "王主管", "赵采购", "刘库管"];

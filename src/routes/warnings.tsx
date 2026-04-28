@@ -48,6 +48,48 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const WEEKDAYS = [
+  { value: 1, label: "周一" },
+  { value: 2, label: "周二" },
+  { value: 3, label: "周三" },
+  { value: 4, label: "周四" },
+  { value: 5, label: "周五" },
+  { value: 6, label: "周六" },
+  { value: 0, label: "周日" },
+];
+
+interface ReminderSchedule {
+  days: number[];
+  time: string;
+}
+
+const parseReminder = (raw: string | null): ReminderSchedule => {
+  if (!raw) return { days: [], time: "09:00" };
+  try {
+    const obj = JSON.parse(raw);
+    if (obj && Array.isArray(obj.days) && typeof obj.time === "string") {
+      return { days: obj.days, time: obj.time };
+    }
+  } catch {
+    // legacy plain "HH:MM"
+    if (/^\d{2}:\d{2}$/.test(raw)) return { days: [], time: raw };
+  }
+  return { days: [], time: "09:00" };
+};
+
+const stringifyReminder = (s: ReminderSchedule): string =>
+  JSON.stringify({ days: [...s.days].sort((a, b) => a - b), time: s.time });
+
+const formatReminder = (raw: string | null): string => {
+  const s = parseReminder(raw);
+  if (s.days.length === 0) return s.time ? `每天 ${s.time}` : "未设置";
+  if (s.days.length === 7) return `每天 ${s.time}`;
+  const labels = WEEKDAYS.filter((w) => s.days.includes(w.value)).map((w) => w.label.replace("周", ""));
+  return `周${labels.join("、")} ${s.time}`;
+};
+
 
 const FILTER_STORAGE_KEY = "warnings:savedFilters";
 

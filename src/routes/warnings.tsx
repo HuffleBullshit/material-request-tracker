@@ -370,13 +370,14 @@ function WarningsPage() {
     );
   };
 
-  const updateReminderTime = async (row: WarningConfig, value: string) => {
+  const updateReminder = async (row: WarningConfig, sched: ReminderSchedule) => {
+    const value = stringifyReminder(sched);
     setList((prev) =>
       prev.map((r) => (r.id === row.id ? { ...r, reminder_time: value } : r)),
     );
     const { error } = await supabase
       .from("warning_configs")
-      .update({ reminder_time: value || null })
+      .update({ reminder_time: value })
       .eq("id", row.id);
     if (error) toast.error("提醒时间保存失败：" + error.message);
   };

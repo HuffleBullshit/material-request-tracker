@@ -45,11 +45,7 @@ import {
   RotateCcw,
   Filter,
   Search,
-  History,
-  CheckCircle2,
-  Clock,
 } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

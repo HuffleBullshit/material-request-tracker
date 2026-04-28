@@ -97,6 +97,7 @@ export type Database = {
           id: string
           product_code: string
           product_name: string | null
+          reminder_time: string | null
           threshold: number
           updated_at: string
           warehouse: string
@@ -110,6 +111,7 @@ export type Database = {
           id?: string
           product_code: string
           product_name?: string | null
+          reminder_time?: string | null
           threshold?: number
           updated_at?: string
           warehouse: string
@@ -123,6 +125,7 @@ export type Database = {
           id?: string
           product_code?: string
           product_name?: string | null
+          reminder_time?: string | null
           threshold?: number
           updated_at?: string
           warehouse?: string

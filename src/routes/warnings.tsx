@@ -394,40 +394,10 @@ function WarningsPage() {
     setLoading(false);
   };
 
-  const loadHistory = async () => {
-    setHistoryLoading(true);
-    const { data, error } = await supabase
-      .from("warning_history")
-      .select("*")
-      .order("detected_at", { ascending: false });
-    if (error) toast.error("历史记录加载失败：" + error.message);
-    else setHistory((data ?? []) as WarningHistory[]);
-    setHistoryLoading(false);
-  };
-
-  const submitHandle = async () => {
-    if (!handlingRow) return;
-    if (!handleResult.trim()) return toast.error("请填写处理结果");
-    const { error } = await supabase
-      .from("warning_history")
-      .update({
-        status: "handled",
-        result: handleResult.trim(),
-        handled_at: new Date().toISOString(),
-        handled_by: CURRENT_USER,
-      })
-      .eq("id", handlingRow.id);
-    if (error) return toast.error("处理失败：" + error.message);
-    toast.success("已处理");
-    setHandlingRow(null);
-    setHandleResult("");
-    loadHistory();
-  };
-
   useEffect(() => {
     load();
-    loadHistory();
   }, []);
+
 
   const submit = async () => {
     if (!form.product_code.trim()) return toast.error("请输入产品编号");

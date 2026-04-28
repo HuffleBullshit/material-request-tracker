@@ -881,7 +881,33 @@ function WarningsPage() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label>提醒时间</Label>
+              <Label>提醒时间（可多选周几，留空则每天）</Label>
+              <div className="grid grid-cols-7 gap-1.5">
+                {WEEKDAYS.map((w) => {
+                  const active = form.reminder_days.includes(w.value);
+                  return (
+                    <button
+                      key={w.value}
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          reminder_days: active
+                            ? form.reminder_days.filter((x) => x !== w.value)
+                            : [...form.reminder_days, w.value],
+                        })
+                      }
+                      className={`rounded-md border px-2 py-1.5 text-xs transition ${
+                        active
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-blue-300"
+                      }`}
+                    >
+                      {w.label}
+                    </button>
+                  );
+                })}
+              </div>
               <Input
                 type="time"
                 value={form.reminder_time}

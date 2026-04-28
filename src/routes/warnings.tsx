@@ -768,6 +768,14 @@ function WarningsPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid gap-2">
+              <Label>提醒时间</Label>
+              <Input
+                type="time"
+                value={form.reminder_time}
+                onChange={(e) => setForm({ ...form, reminder_time: e.target.value })}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>

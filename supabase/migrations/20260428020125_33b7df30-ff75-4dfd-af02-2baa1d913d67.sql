@@ -1,0 +1,1 @@
+ALTER TABLE public.warning_configs ADD COLUMN reminder_time text;

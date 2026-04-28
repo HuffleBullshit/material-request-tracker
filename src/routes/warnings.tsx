@@ -77,6 +77,7 @@ interface WarningConfig {
   created_by: string;
   created_at: string;
   updated_at: string;
+  reminder_time: string | null;
 }
 
 const USERS = ["张总", "李经理", "王主管", "赵采购", "刘库管"];
@@ -135,6 +136,7 @@ function WarningsPage() {
     warning_methods: ["email", "robot"] as string[],
     threshold: "10",
     warehouse: WAREHOUSES[0],
+    reminder_time: "09:00",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [detectResult, setDetectResult] = useState<{
@@ -245,6 +247,7 @@ function WarningsPage() {
       warning_methods: ["email", "robot"],
       threshold: "10",
       warehouse: WAREHOUSES[0],
+      reminder_time: "09:00",
     });
     setOpen(true);
   };
@@ -257,6 +260,7 @@ function WarningsPage() {
       warning_methods: row.warning_methods,
       threshold: String(row.threshold),
       warehouse: row.warehouse,
+      reminder_time: row.reminder_time ?? "09:00",
     });
     setOpen(true);
   };
@@ -288,6 +292,7 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
+      reminder_time: form.reminder_time || null,
     };
     if (editingId) {
       const { error } = await supabase
@@ -317,6 +322,17 @@ function WarningsPage() {
     setList((prev) =>
       prev.map((r) => (r.id === row.id ? { ...r, enabled: !r.enabled } : r)),
     );
+  };
+
+  const updateReminderTime = async (row: WarningConfig, value: string) => {
+    setList((prev) =>
+      prev.map((r) => (r.id === row.id ? { ...r, reminder_time: value } : r)),
+    );
+    const { error } = await supabase
+      .from("warning_configs")
+      .update({ reminder_time: value || null })
+      .eq("id", row.id);
+    if (error) toast.error("提醒时间保存失败：" + error.message);
   };
 
   const remove = async (id: string) => {
@@ -561,6 +577,8 @@ function WarningsPage() {
                   <TableHead>预警方式</TableHead>
                   <TableHead>预警阈值</TableHead>
                   <TableHead>预警仓库</TableHead>
+                  <TableHead>创建时间</TableHead>
+                  <TableHead>提醒时间</TableHead>
                   <TableHead>预警开关</TableHead>
                   <TableHead className="text-left">操作</TableHead>
                 </TableRow>
@@ -568,13 +586,13 @@ function WarningsPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={10} className="text-center py-10 text-slate-400">
                       加载中...
                     </TableCell>
                   </TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={10} className="text-center py-10 text-slate-400">
                       {list.length === 0 ? (
                         <>
                           暂无预警配置，
@@ -623,6 +641,17 @@ function WarningsPage() {
                         </span>
                       </TableCell>
                       <TableCell>{row.warehouse}</TableCell>
+                      <TableCell className="text-xs text-slate-600 whitespace-nowrap">
+                        {new Date(row.created_at).toLocaleString("zh-CN")}
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="time"
+                          value={row.reminder_time ?? ""}
+                          onChange={(e) => updateReminderTime(row, e.target.value)}
+                          className="h-8 w-28"
+                        />
+                      </TableCell>
                       <TableCell>
                         <Switch
                           checked={row.enabled}
@@ -738,6 +767,14 @@ function WarningsPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>提醒时间</Label>
+              <Input
+                type="time"
+                value={form.reminder_time}
+                onChange={(e) => setForm({ ...form, reminder_time: e.target.value })}
+              />
             </div>
           </div>
           <DialogFooter>

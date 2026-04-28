@@ -84,7 +84,7 @@ const stringifyReminder = (s: ReminderSchedule): string =>
 
 const formatReminder = (raw: string | null): string => {
   const s = parseReminder(raw);
-  if (s.days.length === 0) return s.time ? `每天 ${s.time}` : "未设置";
+  if (s.days.length === 0) return "不提醒";
   if (s.days.length === 7) return `每天 ${s.time}`;
   const labels = WEEKDAYS.filter((w) => s.days.includes(w.value)).map((w) => w.label.replace("周", ""));
   return `周${labels.join("、")} ${s.time}`;

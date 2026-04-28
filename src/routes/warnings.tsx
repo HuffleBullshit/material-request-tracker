@@ -568,7 +568,7 @@ function WarningsPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
                       加载中...
                     </TableCell>
                   </TableRow>

@@ -641,6 +641,17 @@ function WarningsPage() {
                         </span>
                       </TableCell>
                       <TableCell>{row.warehouse}</TableCell>
+                      <TableCell className="text-xs text-slate-600 whitespace-nowrap">
+                        {new Date(row.created_at).toLocaleString("zh-CN")}
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="time"
+                          value={row.reminder_time ?? ""}
+                          onChange={(e) => updateReminderTime(row, e.target.value)}
+                          className="h-8 w-28"
+                        />
+                      </TableCell>
                       <TableCell>
                         <Switch
                           checked={row.enabled}

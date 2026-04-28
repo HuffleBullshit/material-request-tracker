@@ -136,6 +136,7 @@ function WarningsPage() {
     warning_methods: ["email", "robot"] as string[],
     threshold: "10",
     warehouse: WAREHOUSES[0],
+    reminder_time: "09:00",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [detectResult, setDetectResult] = useState<{

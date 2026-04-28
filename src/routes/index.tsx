@@ -74,14 +74,14 @@ const MODULES: ModuleCard[] = [
   },
   {
     key: "sales",
-    title: "销售订单与合同",
+    title: "销售业务管理",
     icon: ShoppingCart,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
     hoverBorder: "hover:border-green-400",
     hoverRing: "hover:ring-green-200",
-    description: "销售订单管理与库存预警配置",
-    tags: ["预警管理", "阈值配置", "多方式通知"],
+    description: "销售订单、合同、库存预警与历史记录管理",
+    tags: ["预警管理", "历史记录", "多方式通知"],
     to: "/warnings",
   },
   {

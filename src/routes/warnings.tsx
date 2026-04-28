@@ -574,7 +574,7 @@ function WarningsPage() {
                   </TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-10 text-slate-400">
+                    <TableCell colSpan={8} className="text-center py-10 text-slate-400">
                       {list.length === 0 ? (
                         <>
                           暂无预警配置，

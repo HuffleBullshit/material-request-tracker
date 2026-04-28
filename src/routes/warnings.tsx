@@ -137,6 +137,16 @@ function WarningsPage() {
     warehouse: WAREHOUSES[0],
   });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [detectResult, setDetectResult] = useState<{
+    product_code: string;
+    product_name: string | null;
+    warehouse: string;
+    currentStock: number;
+    threshold: number;
+    diff: number;
+    triggered: boolean;
+    warning_user: string;
+  } | null>(null);
 
   // 搜索/筛选（参考物料管理-我的申请样式）
   const [keyword, setKeyword] = useState("");

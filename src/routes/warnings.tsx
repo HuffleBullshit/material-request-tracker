@@ -96,11 +96,11 @@ const FILTER_STORAGE_KEY = "warnings:savedFilters";
 export const Route = createFileRoute("/warnings")({
   head: () => ({
     meta: [
-      { title: "库存预警管理 — 销售订单与合同" },
+      { title: "库存预警管理 — 销售业务管理" },
       {
         name: "description",
         content:
-          "销售订单与合同模块的库存预警管理：配置产品预警阈值、预警人、预警方式与预警仓库。",
+          "销售业务管理模块的库存预警管理：配置产品预警阈值、预警人、预警方式与预警仓库，并查看历史预警记录。",
       },
     ],
   }),

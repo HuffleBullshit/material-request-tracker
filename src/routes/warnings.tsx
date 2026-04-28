@@ -324,6 +324,17 @@ function WarningsPage() {
     );
   };
 
+  const updateReminderTime = async (row: WarningConfig, value: string) => {
+    setList((prev) =>
+      prev.map((r) => (r.id === row.id ? { ...r, reminder_time: value } : r)),
+    );
+    const { error } = await supabase
+      .from("warning_configs")
+      .update({ reminder_time: value || null })
+      .eq("id", row.id);
+    if (error) toast.error("提醒时间保存失败：" + error.message);
+  };
+
   const remove = async (id: string) => {
     if (!confirm("确认删除此预警配置？")) return;
     const { error } = await supabase

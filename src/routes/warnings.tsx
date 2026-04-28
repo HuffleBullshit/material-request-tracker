@@ -530,7 +530,7 @@ function WarningsPage() {
               库存预警管理
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              销售订单与合同 · 库存预警配置中心
+              销售业务管理 · 库存预警配置中心
             </p>
           </div>
         </div>

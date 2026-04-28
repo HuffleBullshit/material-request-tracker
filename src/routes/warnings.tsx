@@ -126,23 +126,8 @@ interface WarningConfig {
   reminder_time: string | null;
 }
 
-interface WarningHistory {
-  id: string;
-  title: string;
-  product_code: string;
-  product_name: string | null;
-  content: string;
-  warning_user: string;
-  current_stock: number;
-  threshold: number;
-  status: string;
-  result: string | null;
-  detected_at: string;
-  handled_at: string | null;
-  handled_by: string | null;
-}
-
 const USERS = ["张总", "李经理", "王主管", "赵采购", "刘库管"];
+
 const CURRENT_USER = "张总"; // 当前登录用户（mock）
 const WAREHOUSES = ["主仓库", "上海仓", "深圳仓", "北京仓", "成都仓"];
 const METHOD_OPTIONS = [

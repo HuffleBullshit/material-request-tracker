@@ -48,6 +48,48 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const WEEKDAYS = [
+  { value: 1, label: "周一" },
+  { value: 2, label: "周二" },
+  { value: 3, label: "周三" },
+  { value: 4, label: "周四" },
+  { value: 5, label: "周五" },
+  { value: 6, label: "周六" },
+  { value: 0, label: "周日" },
+];
+
+interface ReminderSchedule {
+  days: number[];
+  time: string;
+}
+
+const parseReminder = (raw: string | null): ReminderSchedule => {
+  if (!raw) return { days: [], time: "09:00" };
+  try {
+    const obj = JSON.parse(raw);
+    if (obj && Array.isArray(obj.days) && typeof obj.time === "string") {
+      return { days: obj.days, time: obj.time };
+    }
+  } catch {
+    // legacy plain "HH:MM"
+    if (/^\d{2}:\d{2}$/.test(raw)) return { days: [], time: raw };
+  }
+  return { days: [], time: "09:00" };
+};
+
+const stringifyReminder = (s: ReminderSchedule): string =>
+  JSON.stringify({ days: [...s.days].sort((a, b) => a - b), time: s.time });
+
+const formatReminder = (raw: string | null): string => {
+  const s = parseReminder(raw);
+  if (s.days.length === 0) return s.time ? `每天 ${s.time}` : "未设置";
+  if (s.days.length === 7) return `每天 ${s.time}`;
+  const labels = WEEKDAYS.filter((w) => s.days.includes(w.value)).map((w) => w.label.replace("周", ""));
+  return `周${labels.join("、")} ${s.time}`;
+};
+
 
 const FILTER_STORAGE_KEY = "warnings:savedFilters";
 
@@ -126,6 +168,73 @@ function StatCard({
   );
 }
 
+function ReminderPicker({
+  value,
+  onChange,
+}: {
+  value: ReminderSchedule;
+  onChange: (s: ReminderSchedule) => void;
+}) {
+  const toggleDay = (d: number) => {
+    const days = value.days.includes(d)
+      ? value.days.filter((x) => x !== d)
+      : [...value.days, d];
+    onChange({ ...value, days });
+  };
+  const label =
+    value.days.length === 0
+      ? `每天 ${value.time}`
+      : value.days.length === 7
+        ? `每天 ${value.time}`
+        : `周${WEEKDAYS.filter((w) => value.days.includes(w.value))
+            .map((w) => w.label.replace("周", ""))
+            .join("、")} ${value.time}`;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 font-normal justify-start min-w-[180px]">
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3" align="start">
+        <div className="space-y-3">
+          <div>
+            <div className="text-xs text-slate-500 mb-1.5">每周（不选则每天）</div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {WEEKDAYS.map((w) => {
+                const active = value.days.includes(w.value);
+                return (
+                  <button
+                    key={w.value}
+                    type="button"
+                    onClick={() => toggleDay(w.value)}
+                    className={`rounded-md border px-2 py-1 text-xs transition ${
+                      active
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-slate-700 border-slate-200 hover:border-blue-300"
+                    }`}
+                  >
+                    {w.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 mb-1.5">提醒时间</div>
+            <Input
+              type="time"
+              value={value.time}
+              onChange={(e) => onChange({ ...value, time: e.target.value })}
+              className="h-8"
+            />
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function WarningsPage() {
   const [list, setList] = useState<WarningConfig[]>([]);
   const [loading, setLoading] = useState(false);
@@ -136,6 +245,7 @@ function WarningsPage() {
     warning_methods: ["email", "robot"] as string[],
     threshold: "10",
     warehouse: WAREHOUSES[0],
+    reminder_days: [] as number[],
     reminder_time: "09:00",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -247,6 +357,7 @@ function WarningsPage() {
       warning_methods: ["email", "robot"],
       threshold: "10",
       warehouse: WAREHOUSES[0],
+      reminder_days: [],
       reminder_time: "09:00",
     });
     setOpen(true);
@@ -254,13 +365,15 @@ function WarningsPage() {
 
   const openEdit = (row: WarningConfig) => {
     setEditingId(row.id);
+    const sched = parseReminder(row.reminder_time);
     setForm({
       product_code: row.product_code,
       warning_user: row.warning_user,
       warning_methods: row.warning_methods,
       threshold: String(row.threshold),
       warehouse: row.warehouse,
-      reminder_time: row.reminder_time ?? "09:00",
+      reminder_days: sched.days,
+      reminder_time: sched.time,
     });
     setOpen(true);
   };
@@ -292,7 +405,7 @@ function WarningsPage() {
       warning_methods: form.warning_methods,
       threshold: Number(form.threshold) || 0,
       warehouse: form.warehouse,
-      reminder_time: form.reminder_time || null,
+      reminder_time: stringifyReminder({ days: form.reminder_days, time: form.reminder_time }),
     };
     if (editingId) {
       const { error } = await supabase
@@ -324,13 +437,14 @@ function WarningsPage() {
     );
   };
 
-  const updateReminderTime = async (row: WarningConfig, value: string) => {
+  const updateReminder = async (row: WarningConfig, sched: ReminderSchedule) => {
+    const value = stringifyReminder(sched);
     setList((prev) =>
       prev.map((r) => (r.id === row.id ? { ...r, reminder_time: value } : r)),
     );
     const { error } = await supabase
       .from("warning_configs")
-      .update({ reminder_time: value || null })
+      .update({ reminder_time: value })
       .eq("id", row.id);
     if (error) toast.error("提醒时间保存失败：" + error.message);
   };
@@ -645,11 +759,9 @@ function WarningsPage() {
                         {new Date(row.created_at).toLocaleString("zh-CN")}
                       </TableCell>
                       <TableCell>
-                        <Input
-                          type="time"
-                          value={row.reminder_time ?? ""}
-                          onChange={(e) => updateReminderTime(row, e.target.value)}
-                          className="h-8 w-28"
+                        <ReminderPicker
+                          value={parseReminder(row.reminder_time)}
+                          onChange={(s) => updateReminder(row, s)}
                         />
                       </TableCell>
                       <TableCell>
@@ -769,7 +881,33 @@ function WarningsPage() {
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label>提醒时间</Label>
+              <Label>提醒时间（可多选周几，留空则每天）</Label>
+              <div className="grid grid-cols-7 gap-1.5">
+                {WEEKDAYS.map((w) => {
+                  const active = form.reminder_days.includes(w.value);
+                  return (
+                    <button
+                      key={w.value}
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          reminder_days: active
+                            ? form.reminder_days.filter((x) => x !== w.value)
+                            : [...form.reminder_days, w.value],
+                        })
+                      }
+                      className={`rounded-md border px-2 py-1.5 text-xs transition ${
+                        active
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-blue-300"
+                      }`}
+                    >
+                      {w.label}
+                    </button>
+                  );
+                })}
+              </div>
               <Input
                 type="time"
                 value={form.reminder_time}

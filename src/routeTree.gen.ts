@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WarningsRouteImport } from './routes/warnings'
+import { Route as WarningHistoryRouteImport } from './routes/warning-history'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QueryRouteImport } from './routes/query'
 import { Route as MaterialRouteImport } from './routes/material'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WarningsRoute = WarningsRouteImport.update({
   id: '/warnings',
   path: '/warnings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WarningHistoryRoute = WarningHistoryRouteImport.update({
+  id: '/warning-history',
+  path: '/warning-history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warning-history': typeof WarningHistoryRoute
   '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warning-history': typeof WarningHistoryRoute
   '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,34 @@ export interface FileRoutesById {
   '/material': typeof MaterialRoute
   '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
+  '/warning-history': typeof WarningHistoryRoute
   '/warnings': typeof WarningsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/material' | '/query' | '/settings' | '/warnings'
+  fullPaths:
+    | '/'
+    | '/material'
+    | '/query'
+    | '/settings'
+    | '/warning-history'
+    | '/warnings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/material' | '/query' | '/settings' | '/warnings'
-  id: '__root__' | '/' | '/material' | '/query' | '/settings' | '/warnings'
+  to:
+    | '/'
+    | '/material'
+    | '/query'
+    | '/settings'
+    | '/warning-history'
+    | '/warnings'
+  id:
+    | '__root__'
+    | '/'
+    | '/material'
+    | '/query'
+    | '/settings'
+    | '/warning-history'
+    | '/warnings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +104,7 @@ export interface RootRouteChildren {
   MaterialRoute: typeof MaterialRoute
   QueryRoute: typeof QueryRoute
   SettingsRoute: typeof SettingsRoute
+  WarningHistoryRoute: typeof WarningHistoryRoute
   WarningsRoute: typeof WarningsRoute
 }
 
@@ -86,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/warnings'
       fullPath: '/warnings'
       preLoaderRoute: typeof WarningsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/warning-history': {
+      id: '/warning-history'
+      path: '/warning-history'
+      fullPath: '/warning-history'
+      preLoaderRoute: typeof WarningHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -124,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaterialRoute: MaterialRoute,
   QueryRoute: QueryRoute,
   SettingsRoute: SettingsRoute,
+  WarningHistoryRoute: WarningHistoryRoute,
   WarningsRoute: WarningsRoute,
 }
 export const routeTree = rootRouteImport

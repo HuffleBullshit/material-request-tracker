@@ -15,6 +15,7 @@ import {
   GripVertical,
   UserCircle2,
   Lightbulb,
+  History,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -80,9 +81,21 @@ const MODULES: ModuleCard[] = [
     iconColor: "text-green-600",
     hoverBorder: "hover:border-green-400",
     hoverRing: "hover:ring-green-200",
-    description: "销售订单、合同、库存预警与历史记录管理",
-    tags: ["预警管理", "历史记录", "多方式通知"],
+    description: "销售订单、合同与库存预警配置管理",
+    tags: ["预警配置", "多方式通知", "阈值管理"],
     to: "/warnings",
+  },
+  {
+    key: "warning-history",
+    title: "历史预警记录",
+    icon: History,
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+    hoverBorder: "hover:border-amber-400",
+    hoverRing: "hover:ring-amber-200",
+    description: "查看与处理历史库存预警记录",
+    tags: ["处理状态", "搜索筛选", "按时间筛选"],
+    to: "/warning-history",
   },
   {
     key: "finance",
